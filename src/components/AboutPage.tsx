@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Building, 
   ShieldCheck, 
@@ -10,11 +10,43 @@ import {
   Phone, 
   Mail, 
   ArrowRight,
-  Sparkles
+  Activity,
+  Layers,
+  Check
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
 import { TeamMember } from '../types';
 import { YIBLogo } from './YIBLogo';
+
+const SHOWCASE_TABS = [
+  {
+    id: 'erection',
+    label: 'Crane & Rigging',
+    tag: 'Active On-Site Execution',
+    title: 'Precision Heavy Steel Erection',
+    description: 'Laser-guided column alignment and torque-calibrated high-strength bolts under certified crane supervision.',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop',
+    stat: '500,000+ Safe Hours'
+  },
+  {
+    id: 'peb',
+    label: 'PEB Framework',
+    tag: 'Engineering Precision',
+    title: 'Pre-Engineered Building Detailing',
+    description: 'High-tensile Grade 50 steel framework with seismic resistance and clear spans up to 60 meters.',
+    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1600&auto=format&fit=crop',
+    stat: 'IS:800:2007 Compliant'
+  },
+  {
+    id: 'godown',
+    label: 'Finished Godown',
+    tag: 'Turnkey Delivery',
+    title: 'High-Bay Logistics Warehouses',
+    description: '12m clear stacking height, jointless laser-screed floor slabs, dock bays, and integrated stormwater systems.',
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1600&auto=format&fit=crop',
+    stat: 'FM2 Superflat Floors'
+  }
+];
 
 interface AboutPageProps {
   teamMembers: TeamMember[];
@@ -29,6 +61,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({
   onOpenAdmin,
   onOpenEmail,
 }) => {
+  const [activeShowcase, setActiveShowcase] = useState(0);
+  const currentView = SHOWCASE_TABS[activeShowcase];
   return (
     <div className="pt-24 pb-20 bg-white text-gray-900 animate-in fade-in duration-300">
       
@@ -62,22 +96,76 @@ export const AboutPage: React.FC<AboutPageProps> = ({
       <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
-          {/* Visual Column */}
+          {/* Visual Column: Interactive Industrial Showcase */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded overflow-hidden border border-gray-200 shadow-md">
+            
+            {/* View Switching Tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-lg border border-gray-200 mb-3 w-fit">
+              {SHOWCASE_TABS.map((tab, idx) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveShowcase(idx)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeShowcase === idx
+                      ? 'bg-white text-gray-950 shadow-sm border border-gray-200/80'
+                      : 'text-gray-600 hover:text-gray-950 hover:bg-gray-200/60'
+                  }`}
+                >
+                  {activeShowcase === idx && <Check className="w-3 h-3 text-[#E31B23]" />}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Main Interactive Showcase Image */}
+            <div className="relative rounded-lg overflow-hidden border border-gray-200 shadow-lg bg-gray-950 group">
               <img
-                src="https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1600&auto=format&fit=crop"
-                alt="Yards Infra and Builders LLP engineers on industrial site"
-                className="w-full h-[450px] object-cover"
+                key={currentView.image}
+                src={currentView.image}
+                alt={currentView.title}
+                className="w-full h-[440px] sm:h-[480px] object-cover object-center group-hover:scale-102 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('photo-1504307651254-35680f356dfd')) {
+                    target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop';
+                  }
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+              {/* Top Live Supervision Badge */}
+              <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded bg-black/75 backdrop-blur-md text-white text-xs font-semibold border border-white/20 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="tracking-wide">Active Field Operations</span>
+              </div>
+
+              {/* Top Right Milestone Tag */}
+              <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#E31B23] text-white text-xs font-bold shadow-md">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>{currentView.stat}</span>
+              </div>
+
+              {/* Bottom Caption Overlay */}
+              <div className="absolute bottom-16 sm:bottom-6 left-5 right-5 sm:right-auto sm:max-w-md text-white z-10">
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/20 backdrop-blur-sm text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1.5">
+                  <Activity className="w-3 h-3" />
+                  <span>{currentView.tag}</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug drop-shadow-sm">
+                  {currentView.title}
+                </h3>
+                <p className="text-xs text-gray-200 mt-1 leading-relaxed drop-shadow-sm line-clamp-2">
+                  {currentView.description}
+                </p>
+              </div>
             </div>
 
             {/* Floating Experience Badge */}
-            <div className="absolute -bottom-6 -right-4 sm:bottom-6 sm:-right-6 bg-white/95 border border-gray-200 backdrop-blur-md p-6 rounded shadow-xl max-w-[280px]">
+            <div className="absolute -bottom-6 -right-3 sm:bottom-6 sm:-right-6 bg-white/95 border border-gray-200 backdrop-blur-md p-5 sm:p-6 rounded-lg shadow-xl max-w-[260px] sm:max-w-[280px] z-20">
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 rounded bg-red-50 text-[#E31B23]">
-                  <HardHat className="w-5 h-5" />
+                <div className="p-2.5 rounded bg-red-50 text-[#E31B23]">
+                  <HardHat className="w-6 h-6" />
                 </div>
                 <div>
                   <span className="text-2xl font-black text-gray-950 font-display">10+ Years</span>
@@ -88,6 +176,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                 Specialized in industrial sheds, logistics warehouses, PEB erection and structural steel engineering.
               </p>
             </div>
+
           </div>
 
           {/* Narrative Column */}
@@ -234,18 +323,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({
               </div>
             ))}
           </div>
-
-          {onOpenAdmin && (
-            <div className="mt-10 text-center">
-              <button
-                onClick={onOpenAdmin}
-                className="inline-flex items-center gap-2 text-xs text-gray-500 hover:text-[#E31B23] transition-colors font-semibold cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Admin: Manage team members and executive credentials in Admin Portal</span>
-              </button>
-            </div>
-          )}
 
         </div>
       </section>

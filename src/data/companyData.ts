@@ -124,7 +124,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Thermal Glass Wool / Rockwool Underdeck Insulation',
       'Certified Rigging & Mobile Crane Erection Under Safety Supervision'
     ],
-    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1200&auto=format&fit=crop',
     timeline: '2 – 5 Months'
   },
   {
@@ -189,7 +189,7 @@ export const PROJECTS_DATA: ProjectItem[] = [
     image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
     galleryImages: [
       'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop'
     ],
     builtUpArea: '65,000 Sq. Ft.',
@@ -223,10 +223,10 @@ export const PROJECTS_DATA: ProjectItem[] = [
     city: 'Andhra Pradesh',
     shortDescription: 'Large-span pre-engineered building (PEB) complex with 60-meter clear span without interior intermediate columns.',
     fullDescription: 'Showcasing engineering mastery in clear-span structural design. This 85,000 sq.ft facility utilizes high-grade ASTM A572 Grade 50 steel with custom tapered rafters, providing an uninterrupted clear span of 60 meters for flexible production layouts.',
-    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop',
     galleryImages: [
-      'https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop'
     ],
     builtUpArea: '85,000 Sq. Ft.',
     year: '2025',

@@ -43,6 +43,13 @@ export const ServiceModal: React.FC<ServiceModalProps> = ({
               src={service.image}
               alt={service.title}
               className="w-full h-full object-cover object-center"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.includes('photo-1504307651254-35680f356dfd')) {
+                  target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop';
+                }
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 right-4">

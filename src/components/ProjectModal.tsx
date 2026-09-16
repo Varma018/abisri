@@ -55,6 +55,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 src={activeImage}
                 alt={project.title}
                 className="w-full h-full object-cover object-center"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('photo-1504307651254-35680f356dfd')) {
+                    target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop';
+                  }
+                }}
               />
               <div className="absolute top-4 left-4">
                 <span className="px-3 py-1 rounded bg-white/95 backdrop-blur-md text-[#E31B23] text-xs font-bold border border-gray-200 shadow-xs">

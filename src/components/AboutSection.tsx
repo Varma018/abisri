@@ -14,14 +14,27 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenAboutModal }) 
           
           {/* Left Column: Industrial Construction Imagery with Floating Badge */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded overflow-hidden border border-gray-200 shadow-lg group">
+            <div className="relative rounded overflow-hidden border border-gray-200 shadow-lg group bg-gray-900">
               <img
-                src="https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1600&auto=format&fit=crop"
-                alt="Engineers inspecting industrial construction PEB framework on site"
+                src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop"
+                alt="Yards Infra engineers inspecting industrial construction PEB framework on site"
                 className="w-full h-[400px] sm:h-[480px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('photo-1581094794329-c8112a89af12')) {
+                    target.src = 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1600&auto=format&fit=crop';
+                  }
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              
+              {/* Live Project Execution Badge */}
+              <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded bg-black/75 backdrop-blur-md text-white text-xs font-semibold border border-white/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>On-Site Supervision &amp; PEB Rigging</span>
+              </div>
             </div>
 
             {/* Floating Experience Card */}

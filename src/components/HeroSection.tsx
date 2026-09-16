@@ -41,6 +41,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           alt="Industrial Shed & PEB Steel Structure by Yards Infra and Builders LLP"
           className="w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.05]"
           loading="eager"
+          referrerPolicy="no-referrer"
         />
         {/* Crisp professional gradient overlay - light theme with readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/75" />

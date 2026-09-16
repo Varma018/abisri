@@ -62,7 +62,19 @@ export default function App() {
       const saved = localStorage.getItem('yards_infra_projects');
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.map((p: ProjectItem) => {
+            const sanitizedImage = p.image?.includes('photo-1541888946425-d0fbb18615f8')
+              ? 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop'
+              : p.image;
+            const sanitizedGallery = p.galleryImages?.map((g: string) => 
+              g?.includes('photo-1541888946425-d0fbb18615f8')
+                ? 'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop'
+                : g
+            );
+            return { ...p, image: sanitizedImage, galleryImages: sanitizedGallery };
+          });
+        }
       }
     } catch (e) {
       console.error('Could not parse local projects', e);

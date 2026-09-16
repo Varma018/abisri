@@ -110,6 +110,13 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   alt={`${project.title} - ${project.category} in ${project.city}`}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.src.includes('photo-1504307651254-35680f356dfd')) {
+                      target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop';
+                    }
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
 
