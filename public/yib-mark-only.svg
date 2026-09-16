@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="140 45 310 195" width="100%" height="100%">
+  <defs>
+    <linearGradient id="craneJibGrad_light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F83840" />
+      <stop offset="50%" stop-color="#E31B23" />
+      <stop offset="100%" stop-color="#AD0E14" />
+    </linearGradient>
+    <linearGradient id="bLobeGrad_light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#333A44" />
+      <stop offset="60%" stop-color="#222831" />
+      <stop offset="100%" stop-color="#14181F" />
+    </linearGradient>
+  </defs>
+
+  
+  <g id="monogram-crane-yb" transform="translate(0, 0)">
+    <!-- HOIST CABLE & CRANE HOOK -->
+    <g id="hoist-assembly">
+      <!-- Pulley Wheel Sheave at boom apex -->
+      <circle cx="156" cy="56" r="14" fill="#E31B23" />
+      <circle cx="156" cy="56" r="8.8" fill="#FFFFFF" />
+      <circle cx="156" cy="56" r="4.4" fill="#8C0B10" />
+
+      <!-- Vertical Hoist Cable -->
+      <line x1="156" y1="70" x2="156" y2="128" stroke="#222831" stroke-width="2.8" />
+
+      <!-- Crane Hook Block -->
+      <rect x="147" y="128" width="18" height="24" rx="2" fill="#222831" />
+      <circle cx="156" cy="135.5" r="2.2" fill="#718096" />
+      <circle cx="156" cy="144" r="2.2" fill="#718096" />
+
+      <!-- Industrial Curved Hook -->
+      <path 
+        d="M 156 152
+           L 156 163
+           A 11 11 0 0 0 167 174
+           A 11 11 0 0 0 178 163
+           A 6.5 6.5 0 0 0 171.5 156.5
+           A 3.8 3.8 0 0 0 167.5 160.5
+           A 3.8 3.8 0 0 0 171.5 164.5
+           A 2.5 2.5 0 0 1 169 167
+           A 5.5 5.5 0 0 1 163.5 161.5
+           L 163.5 152 Z" 
+        fill="#222831" 
+      />
+    </g>
+
+    <!-- CRANE BOOM (Left arm of Y) -->
+    <!-- Upper highlight facet of boom -->
+    <polygon 
+      points="156,48 174,62 268,136 252,158 162,64" 
+      fill="#F83840" 
+    />
+
+    <!-- Main face of crane boom -->
+    <polygon 
+      points="162,64 252,158 226,218 226,160" 
+      fill="url(#craneJibGrad_light)" 
+    />
+
+    <!-- Origami fold shadow crease at junction -->
+    <polygon 
+      points="242,142 284,94 284,134 252,158" 
+      fill="#8C0B10" 
+    />
+
+    <!-- Right branch of Y meeting B -->
+    <polygon 
+      points="252,158 304,94 284,94 242,142" 
+      fill="url(#craneJibGrad_light)" 
+    />
+
+    <!-- Vertical Stem of Y -->
+    <rect 
+      x="226" 
+      y="158" 
+      width="34" 
+      height="60" 
+      fill="#E31B23" 
+    />
+    <!-- Left shadow bevel on Y stem -->
+    <rect 
+      x="226" 
+      y="158" 
+      width="6" 
+      height="60" 
+      fill="#AD0E14" 
+    />
+
+    <!-- THE LETTER 'B' -->
+    <g id="letter-B">
+      <!-- Outer contour of B with chamfered bottom-left corner -->
+      <path 
+        d="M 298 94 
+           L 384 94 
+           C 418 94 436 108 436 130 
+           C 436 146 424 156 408 160 
+           C 428 164 442 176 442 196 
+           C 442 218 422 230 384 230 
+           L 310 230 
+           L 298 218 
+           L 298 94 Z" 
+        fill="url(#bLobeGrad_light)" 
+      />
+
+      <!-- Top counter opening -->
+      <path 
+        d="M 330 116 
+           L 374 116 
+           C 390 116 400 121 400 131 
+           C 400 141 390 146 374 146 
+           L 330 146 Z" 
+        fill="#FFFFFF" 
+      />
+
+      <!-- Bottom counter opening -->
+      <path 
+        d="M 330 172 
+           L 378 172 
+           C 396 172 406 177 406 189 
+           C 406 201 396 206 378 206 
+           L 330 206 Z" 
+        fill="#FFFFFF" 
+      />
+
+      <!-- Modern diagonal shadow across lower lobe of B -->
+      <path 
+        d="M 330 160 
+           L 442 196 
+           C 442 218 422 230 384 230 
+           L 310 230 
+           L 298 218 
+           L 330 184 Z" 
+        fill="#14181F" 
+        opacity="0.6" 
+      />
+    </g>
+  </g>
+  
+</svg>

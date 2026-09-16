@@ -1,0 +1,7 @@
+{
+  "name": "Yards Infra and Builders LLP",
+  "description": "Yards Infra and Builders LLP is an industrial construction and infrastructure leader specializing in industrial sheds, godowns, PEB erection, structural steel, and infrastructure projects. Building Tomorrow, Today.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
