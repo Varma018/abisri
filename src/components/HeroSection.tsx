@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, ShieldCheck, Award, CheckCircle2, Warehouse, Package, Cog, Building2 } from 'lucide-react';
+import { ChevronDown, Warehouse, Package, Cog, Building2 } from 'lucide-react';
 import { COMPANY_INFO, CORE_FOUR_AREAS } from '../data/companyData';
 import { YIBLogo } from './YIBLogo';
 
@@ -81,29 +81,13 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           </p>
 
           {/* Inspiring Company Quote */}
-          <div className="border-l-4 border-[#E31B23] pl-4 py-1 mb-8 bg-red-50/50 rounded-r">
+          <div className="border-l-4 border-[#E31B23] pl-4 py-1 mb-2 bg-red-50/50 rounded-r">
             <p className="text-sm sm:text-base font-semibold text-gray-800 italic">
               "{COMPANY_INFO.quote}"
             </p>
             <p className="text-xs text-[#E31B23] font-bold uppercase tracking-wider mt-1">
               — {COMPANY_INFO.peopleMotto}
             </p>
-          </div>
-
-          {/* Trust credentials badges */}
-          <div className="pt-6 border-t border-gray-200 flex flex-wrap items-center gap-6 sm:gap-8 text-xs text-gray-600 font-medium">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#E31B23]" />
-              <span>RERA Registered Builder</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#E31B23]" />
-              <span>ISO 9001:2015 Certified</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#E31B23]" />
-              <span>100% Itemized BOQ & Audit</span>
-            </div>
           </div>
         </div>
 

@@ -26,12 +26,12 @@ export const COMPANY_INFO = {
 
 export const STATS_DATA: StatItem[] = [
   {
-    value: '10+',
+    value: '4+',
     label: 'Years of Experience',
-    description: 'Over a decade of engineering mastery, steel erection, and industrial infrastructure across India.',
+    description: 'Over 4 years of engineering mastery, steel erection, and industrial infrastructure across India.',
   },
   {
-    value: '50+',
+    value: '12',
     label: 'Projects Completed',
     description: 'Delivered large-span industrial sheds, logistics godowns, PEB warehouses, and heavy structural frameworks.',
   },

@@ -168,7 +168,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                   <HardHat className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-2xl font-black text-gray-950 font-display">10+ Years</span>
+                  <span className="text-2xl font-black text-gray-950 font-display">4+ Years</span>
                   <p className="text-[11px] uppercase tracking-wider text-[#E31B23] font-bold">Engineering Legacy</p>
                 </div>
               </div>
