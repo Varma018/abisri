@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, PhoneCall, Mail } from 'lucide-react';
+import { ArrowRight, PhoneCall } from 'lucide-react';
 import { COMPANY_INFO } from '../data/companyData';
 import { YIBLogo } from './YIBLogo';
 
@@ -12,7 +12,6 @@ interface CTASectionProps {
 export const CTASection: React.FC<CTASectionProps> = ({
   onOpenConsultation,
   onScrollToContact,
-  onOpenEmail,
 }) => {
   return (
     <section className="py-16 sm:py-24 bg-white relative border-t border-b border-gray-200">
@@ -55,7 +54,7 @@ export const CTASection: React.FC<CTASectionProps> = ({
           </button>
         </div>
 
-        {/* Direct quick call and email links */}
+        {/* Direct quick call link */}
         <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-gray-500 font-medium">
           <a
             href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`}
@@ -64,22 +63,6 @@ export const CTASection: React.FC<CTASectionProps> = ({
             <PhoneCall className="w-4 h-4 text-[#E31B23]" />
             <span>Direct Line: {COMPANY_INFO.phone}</span>
           </a>
-          <span className="hidden sm:inline text-gray-300">•</span>
-          <button
-            type="button"
-            onClick={() => {
-              if (onOpenEmail) {
-                onOpenEmail();
-              } else {
-                window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${COMPANY_INFO.email}`, '_blank');
-              }
-            }}
-            className="flex items-center gap-2 hover:text-[#E31B23] transition-colors cursor-pointer"
-            title="Send Email"
-          >
-            <Mail className="w-4 h-4 text-[#E31B23]" />
-            <span>{COMPANY_INFO.email}</span>
-          </button>
         </div>
 
       </div>
