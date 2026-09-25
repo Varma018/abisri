@@ -23,8 +23,10 @@ export async function fetchInquiriesFromSupabase(): Promise<InquiryItem[] | null
 
     if (!data) return [];
 
-    return data.map((row: any): InquiryItem => {
-      const dateTime = getInquiryDateTime(row.timestamp, row.created_at);
+    return data
+      .filter((row: any) => row.id !== 'SYSTEM_COMPANY_SETTINGS' && row.source !== 'system_settings')
+      .map((row: any): InquiryItem => {
+        const dateTime = getInquiryDateTime(row.timestamp, row.created_at);
       return {
         id: row.id,
         fullName: row.full_name || '',
@@ -410,6 +412,7 @@ export async function fetchCompanyInfoFromSupabase(): Promise<CompanyInfo | null
   const client = getSupabaseClient();
   if (!client) return null;
 
+  // 1. Try dedicated company_settings table if it exists
   try {
     const { data, error } = await client
       .from('company_settings')
@@ -417,23 +420,73 @@ export async function fetchCompanyInfoFromSupabase(): Promise<CompanyInfo | null
       .eq('id', 'primary')
       .maybeSingle();
 
-    if (error) {
-      return null;
-    }
-
-    if (data && data.settings) {
+    if (!error && data && data.settings) {
       return data.settings as CompanyInfo;
     }
-    return null;
-  } catch (err) {
-    return null;
+  } catch {
+    // Ignore error if table is not yet created
   }
+
+  // 2. Query universal system settings record in inquiries table
+  try {
+    const { data: inqData, error: inqError } = await client
+      .from('inquiries')
+      .select('*')
+      .eq('id', 'SYSTEM_COMPANY_SETTINGS')
+      .maybeSingle();
+
+    if (!inqError && inqData && inqData.message) {
+      try {
+        const parsed = JSON.parse(inqData.message);
+        if (parsed && typeof parsed === 'object') {
+          return parsed as CompanyInfo;
+        }
+      } catch (parseErr) {
+        console.warn('[Supabase] Failed to parse company settings payload:', parseErr);
+      }
+    }
+  } catch (err) {
+    console.warn('[Supabase] Error reading company settings fallback:', err);
+  }
+
+  return null;
 }
 
 export async function saveCompanyInfoToSupabase(info: CompanyInfo): Promise<boolean> {
   const client = getSupabaseClient();
   if (!client) return false;
 
+  let success = false;
+
+  // 1. Primary: Save to inquiries table under reserved system ID (guaranteed available on Supabase)
+  try {
+    const { error: inqError } = await client
+      .from('inquiries')
+      .upsert({
+        id: 'SYSTEM_COMPANY_SETTINGS',
+        full_name: info.name || 'Yards Infra Settings',
+        phone_number: info.phone || '',
+        email: info.email || '',
+        project_type: info.shortName || 'Yards Infra',
+        project_location: info.address || '',
+        estimated_budget: info.reraReg || '',
+        message: JSON.stringify(info),
+        timestamp: new Date().toISOString(),
+        source: 'system_settings',
+        status: 'System',
+        created_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
+
+    if (!inqError) {
+      success = true;
+    } else {
+      console.warn('[Supabase] Inquiries settings fallback upsert error:', inqError.message);
+    }
+  } catch (err) {
+    console.error('[Supabase] Error saving company settings to inquiries table:', err);
+  }
+
+  // 2. Secondary: Also save to company_settings table if it was created
   try {
     const { error } = await client
       .from('company_settings')
@@ -442,14 +495,13 @@ export async function saveCompanyInfoToSupabase(info: CompanyInfo): Promise<bool
         { onConflict: 'id' }
       );
 
-    if (error) {
-      console.warn('[Supabase] Failed to save company settings:', error.message);
-      return false;
+    if (!error) {
+      success = true;
     }
-    return true;
-  } catch (err) {
-    console.error('[Supabase] Error saving company settings:', err);
-    return false;
+  } catch {
+    // Ignore error if table not yet created in Supabase
   }
+
+  return success;
 }
 

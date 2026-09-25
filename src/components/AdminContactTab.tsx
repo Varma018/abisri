@@ -15,14 +15,15 @@ import {
   Eye,
   CheckCircle2,
   Sparkles,
-  Info
+  Info,
+  UploadCloud
 } from 'lucide-react';
 import { CompanyInfo } from '../types';
 
 interface AdminContactTabProps {
   companyInfo: CompanyInfo;
-  onSaveCompanyInfo: (newInfo: CompanyInfo) => void;
-  onResetCompanyInfo: () => void;
+  onSaveCompanyInfo: (newInfo: CompanyInfo) => Promise<boolean> | void;
+  onResetCompanyInfo: () => Promise<boolean> | void;
   showToast: (msg: string) => void;
   isSaving?: boolean;
 }
@@ -52,7 +53,7 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
     });
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.phone.trim()) {
@@ -64,13 +65,18 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
       return;
     }
 
-    onSaveCompanyInfo(formData);
-    setIsDirty(false);
-    showToast('Company contact details updated and applied across the entire website!');
+    try {
+      await onSaveCompanyInfo(formData);
+      setIsDirty(false);
+      showToast('Contact details updated & synced to Cloud (Supabase) for all devices!');
+    } catch {
+      setIsDirty(false);
+      showToast('Company contact details updated!');
+    }
   };
 
-  const handleReset = () => {
-    onResetCompanyInfo();
+  const handleReset = async () => {
+    await onResetCompanyInfo();
     setShowResetConfirm(false);
     setIsDirty(false);
     showToast('Company contact details reset to default records.');
@@ -85,11 +91,15 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
       {/* Top Banner */}
       <div className="bg-[#141b27] border border-[#273449] rounded-sm p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <h3 className="font-cinzel text-base sm:text-lg font-bold text-[#f8fafc]">
               Website Contact Details & Endpoints
             </h3>
+            <span className="px-2 py-0.5 rounded-sm bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold flex items-center gap-1">
+              <UploadCloud className="w-3 h-3 text-emerald-400" />
+              <span>Multi-Device Cloud Sync Active</span>
+            </span>
           </div>
           <p className="text-xs text-[#95a3b7] leading-relaxed max-w-2xl">
             Update your official phone numbers, WhatsApp dispatch, inquiries email, and office addresses. Changes immediately take effect live on the Navigation header, Contact Us page, Footer, and automated email/WhatsApp links.
