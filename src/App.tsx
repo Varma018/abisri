@@ -23,6 +23,18 @@ import { AdminPortal } from './components/AdminPortal';
 import { ProjectItem, ServiceItem, TeamMember, NavView, InquiryItem } from './types';
 import { PROJECTS_DATA, INITIAL_TEAM_MEMBERS, COMPANY_INFO } from './data/companyData';
 import { getStoredInquiries, saveStoredInquiries, addStoredInquiry } from './utils/inquiryStorage';
+import { isSupabaseConfigured, getSupabaseClient } from './lib/supabase';
+import { 
+  fetchInquiriesFromSupabase, 
+  fetchProjectsFromSupabase, 
+  fetchTeamFromSupabase,
+  saveProjectToSupabase,
+  deleteProjectFromSupabase,
+  saveTeamMemberToSupabase,
+  deleteTeamMemberFromSupabase,
+  updateInquiryStatusInSupabase,
+  deleteInquiryFromSupabase
+} from './services/supabaseService';
 import { ArrowRight, Building, Layers, ShieldCheck, Star, MapPin } from 'lucide-react';
 
 export default function App() {
@@ -127,31 +139,37 @@ export default function App() {
   const handleAddProject = (newProj: ProjectItem) => {
     const updated = [newProj, ...projects];
     saveProjects(updated);
+    saveProjectToSupabase(newProj).catch((err) => console.warn('[Supabase] Project save error:', err));
   };
 
   const handleUpdateProject = (updatedProj: ProjectItem) => {
     const updated = projects.map((p) => (p.id === updatedProj.id ? updatedProj : p));
     saveProjects(updated);
+    saveProjectToSupabase(updatedProj).catch((err) => console.warn('[Supabase] Project update error:', err));
   };
 
   const handleDeleteProject = (projectId: string) => {
     const updated = projects.filter((p) => p.id !== projectId);
     saveProjects(updated);
+    deleteProjectFromSupabase(projectId).catch((err) => console.warn('[Supabase] Project delete error:', err));
   };
 
   const handleAddTeamMember = (newMember: TeamMember) => {
     const updated = [...teamMembers, newMember];
     saveTeamMembers(updated);
+    saveTeamMemberToSupabase(newMember).catch((err) => console.warn('[Supabase] Team save error:', err));
   };
 
   const handleUpdateTeamMember = (updatedMember: TeamMember) => {
     const updated = teamMembers.map((m) => (m.id === updatedMember.id ? updatedMember : m));
     saveTeamMembers(updated);
+    saveTeamMemberToSupabase(updatedMember).catch((err) => console.warn('[Supabase] Team update error:', err));
   };
 
   const handleDeleteTeamMember = (memberId: string) => {
     const updated = teamMembers.filter((m) => m.id !== memberId);
     saveTeamMembers(updated);
+    deleteTeamMemberFromSupabase(memberId).catch((err) => console.warn('[Supabase] Team delete error:', err));
   };
 
   // Inquiry Handlers for Leads Management
@@ -164,13 +182,79 @@ export default function App() {
     const updated = inquiries.map((inq) => (inq.id === id ? { ...inq, status } : inq));
     setInquiries(updated);
     saveStoredInquiries(updated);
+    updateInquiryStatusInSupabase(id, status).catch((err) => console.warn('[Supabase] Inquiry status error:', err));
   };
 
   const handleDeleteInquiry = (id: string) => {
     const updated = inquiries.filter((inq) => inq.id !== id);
     setInquiries(updated);
     saveStoredInquiries(updated);
+    deleteInquiryFromSupabase(id).catch((err) => console.warn('[Supabase] Inquiry delete error:', err));
   };
+
+  // Re-sync with Supabase cloud
+  const refreshFromSupabase = async () => {
+    if (!isSupabaseConfigured()) return;
+    try {
+      const [remoteInquiries, remoteProjects, remoteTeam] = await Promise.all([
+        fetchInquiriesFromSupabase(),
+        fetchProjectsFromSupabase(),
+        fetchTeamFromSupabase(),
+      ]);
+
+      if (remoteInquiries && remoteInquiries.length > 0) {
+        setInquiries(remoteInquiries);
+        saveStoredInquiries(remoteInquiries);
+      }
+
+      if (remoteProjects && remoteProjects.length > 0) {
+        setProjects(remoteProjects);
+        try {
+          localStorage.setItem('yards_infra_projects', JSON.stringify(remoteProjects));
+        } catch (e) {}
+      }
+
+      if (remoteTeam && remoteTeam.length > 0) {
+        setTeamMembers(remoteTeam);
+        try {
+          localStorage.setItem('yards_infra_team', JSON.stringify(remoteTeam));
+        } catch (e) {}
+      }
+    } catch (err) {
+      console.warn('[Supabase] Refresh error:', err);
+    }
+  };
+
+  // Initial Supabase fetch & realtime subscription
+  useEffect(() => {
+    refreshFromSupabase();
+
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    try {
+      const channel = client
+        .channel('yib_inquiries_realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'inquiries' },
+          async () => {
+            const updated = await fetchInquiriesFromSupabase();
+            if (updated) {
+              setInquiries(updated);
+              saveStoredInquiries(updated);
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        client.removeChannel(channel);
+      };
+    } catch (err) {
+      console.warn('[Supabase] Realtime subscription error:', err);
+    }
+  }, []);
 
   const handleResetDefaults = () => {
     saveProjects(PROJECTS_DATA);
@@ -239,6 +323,7 @@ export default function App() {
         onUpdateInquiryStatus={handleUpdateInquiryStatus}
         onDeleteInquiry={handleDeleteInquiry}
         onAddInquiry={handleAddInquiry}
+        onRefreshData={refreshFromSupabase}
         onResetDefaults={handleResetDefaults}
         onExitAdmin={() => navigateTo('home')}
       />

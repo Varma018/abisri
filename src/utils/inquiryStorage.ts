@@ -1,6 +1,7 @@
 import { InquiryItem } from '../types';
 import { INITIAL_INQUIRIES } from '../data/inquiriesData';
 import { COMPANY_INFO } from '../data/companyData';
+import { saveInquiryToSupabase } from '../services/supabaseService';
 
 const STORAGE_KEY = 'yards_infra_inquiries';
 
@@ -33,6 +34,12 @@ export function addStoredInquiry(newInquiry: InquiryItem): InquiryItem[] {
   const exists = current.some((item) => item.id === newInquiry.id);
   const updated = exists ? current.map((i) => (i.id === newInquiry.id ? newInquiry : i)) : [newInquiry, ...current];
   saveStoredInquiries(updated);
+
+  // Sync to Supabase in background
+  saveInquiryToSupabase(newInquiry).catch((err) => {
+    console.warn('[Supabase] Background sync error:', err);
+  });
+
   return updated;
 }
 

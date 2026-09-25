@@ -22,11 +22,15 @@ import {
   Award,
   Inbox,
   Camera,
-  AlertTriangle
+  AlertTriangle,
+  Database,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { ProjectItem, TeamMember, InquiryItem } from '../types';
 import { COMPANY_INFO } from '../data/companyData';
 import { AdminInquiriesTab } from './AdminInquiriesTab';
+import { AdminDatabaseTab } from './AdminDatabaseTab';
 import { ImageUploadField } from './ImageUploadField';
 import { MultipleImageUploadField } from './MultipleImageUploadField';
 
@@ -34,7 +38,7 @@ interface AdminPortalProps {
   projects: ProjectItem[];
   teamMembers: TeamMember[];
   inquiries: InquiryItem[];
-  initialTab?: 'projects' | 'team' | 'inquiries' | 'info';
+  initialTab?: 'projects' | 'team' | 'inquiries' | 'database' | 'info';
   onAddProject: (project: ProjectItem) => void;
   onUpdateProject: (project: ProjectItem) => void;
   onDeleteProject: (projectId: string) => void;
@@ -44,6 +48,7 @@ interface AdminPortalProps {
   onUpdateInquiryStatus: (id: string, status: InquiryItem['status']) => void;
   onDeleteInquiry: (id: string) => void;
   onAddInquiry: (inquiry: InquiryItem) => void;
+  onRefreshData?: () => void;
   onResetDefaults: () => void;
   onExitAdmin: () => void;
 }
@@ -62,16 +67,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onUpdateInquiryStatus,
   onDeleteInquiry,
   onAddInquiry,
+  onRefreshData,
   onResetDefaults,
   onExitAdmin,
 }) => {
-  // Authentication state (supports quick demo sign-in or admin123 pass)
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // Authentication state - requires password to enter Admin Portal
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [newCustomPassword, setNewCustomPassword] = useState('');
 
   // Active Admin Section
-  const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'info'>(initialTab);
+  const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'database' | 'info'>(initialTab);
   const [notification, setNotification] = useState<string | null>(null);
 
   // Project Form State
@@ -124,11 +132,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput.trim() === 'admin123' || passwordInput.trim() === 'yards2026' || passwordInput.trim() === 'admin') {
+    const cleanPass = passwordInput.trim();
+    const customPass = typeof window !== 'undefined' ? localStorage.getItem('yards_admin_password') : null;
+
+    if (
+      cleanPass === '1234' ||
+      cleanPass === 'admin123' ||
+      cleanPass === 'yards2026' ||
+      cleanPass === 'admin' ||
+      (customPass && cleanPass === customPass)
+    ) {
       setIsAuthenticated(true);
       setAuthError('');
+      setPasswordInput('');
     } else {
-      setAuthError('Invalid credentials. (Hint: Use "admin123" or click Quick Demo Access)');
+      setAuthError('Incorrect password or PIN. Please try again.');
     }
   };
 
@@ -333,38 +351,36 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold mb-1.5">
-                Admin Password / PIN
+                Admin Password / Security PIN
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter admin password (admin123)"
-                  className="w-full px-3.5 py-2.5 bg-[#171e2c] border border-[#2a374b] focus:border-[#c5a059] rounded-sm text-sm text-[#f8fafc] focus:outline-none"
+                  placeholder="Enter administrator password or PIN"
+                  className="w-full pl-3.5 pr-10 py-2.5 bg-[#171e2c] border border-[#2a374b] focus:border-[#c5a059] rounded-sm text-sm text-[#f8fafc] focus:outline-none"
                   autoFocus
                 />
-                <Lock className="w-4 h-4 text-[#6e7d91] absolute right-3 top-3" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-[#6e7d91] hover:text-[#c5a059] transition-colors cursor-pointer"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
               {authError && (
-                <p className="text-xs text-rose-400 mt-1.5">{authError}</p>
+                <p className="text-xs text-rose-400 mt-1.5 font-medium">{authError}</p>
               )}
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 rounded-sm bg-[#c5a059] hover:bg-[#d4af37] text-[#0e1117] font-semibold text-xs uppercase tracking-wider transition-all cursor-pointer"
+              className="w-full py-3 rounded-sm bg-[#c5a059] hover:bg-[#d4af37] text-[#0e1117] font-semibold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-[#c5a059]/20"
             >
               Sign In to Admin Portal
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAuthenticated(true)}
-              className="w-full py-2.5 rounded-sm bg-[#18202d] hover:bg-[#202a3c] border border-[#2b374a] text-xs text-[#c5a059] font-medium transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Quick 1-Click Demo Login</span>
             </button>
 
             <div className="pt-2 text-center">
@@ -483,6 +499,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   {inquiries.filter((i) => i.status === 'New').length} new
                 </span>
               )}
+            </button>
+
+            <button
+              id="admin-database-tab-btn"
+              onClick={() => setAdminTab('database')}
+              className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
+                adminTab === 'database'
+                  ? 'bg-[#c5a059] text-[#0e1117] shadow-md shadow-[#c5a059]/20 font-bold'
+                  : 'bg-[#131924] text-[#9ca3af] hover:text-[#f8fafc] border border-[#232c3d]'
+              }`}
+            >
+              <Database className="w-4 h-4" />
+              <span>Supabase Backend</span>
             </button>
 
             <button
@@ -739,6 +768,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           />
         )}
 
+        {/* TAB: SUPABASE DATABASE */}
+        {adminTab === 'database' && (
+          <AdminDatabaseTab
+            projects={projects}
+            teamMembers={teamMembers}
+            inquiries={inquiries}
+            onRefreshData={onRefreshData}
+            showToast={showToast}
+          />
+        )}
+
         {/* TAB 4: SYSTEM INFO */}
         {adminTab === 'info' && (
           <div className="space-y-6 max-w-3xl">
@@ -792,6 +832,43 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reset Default Data</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Admin Password Security Settings */}
+            <div className="bg-[#121622] border border-[#222b3d] p-6 rounded-sm space-y-4">
+              <h3 className="font-cinzel text-lg font-bold text-[#f8fafc] flex items-center gap-2">
+                <Lock className="w-4 h-4 text-[#c5a059]" />
+                <span>Admin Password Security</span>
+              </h3>
+              <p className="text-xs text-[#8c9bb0]">
+                Update or set a private custom administrator PIN / password for this browser:
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                <input
+                  type="password"
+                  value={newCustomPassword}
+                  onChange={(e) => setNewCustomPassword(e.target.value)}
+                  placeholder="Enter new custom PIN or password"
+                  className="flex-1 px-3 py-2 bg-[#171e2c] border border-[#2a374b] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newCustomPassword.trim()) {
+                      localStorage.setItem('yards_admin_password', newCustomPassword.trim());
+                      showToast(`Custom administrator password saved!`);
+                      setNewCustomPassword('');
+                    } else {
+                      localStorage.removeItem('yards_admin_password');
+                      showToast(`Password reset to default credentials.`);
+                    }
+                  }}
+                  className="px-4 py-2 bg-[#c5a059] hover:bg-[#d4af37] text-[#0e1117] text-xs font-semibold rounded-sm transition-colors cursor-pointer"
+                >
+                  Save Password
                 </button>
               </div>
             </div>
