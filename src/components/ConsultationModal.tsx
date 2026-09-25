@@ -11,6 +11,7 @@ import {
   formatGmailWebUrl,
   sendInquiryViaEmailApi 
 } from '../utils/inquiryStorage';
+import { formatExactDateTime } from '../utils/dateTimeUtils';
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -50,6 +51,7 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
     if (!name.trim() || !phone.trim() || !email.trim()) return;
 
     setIsSubmitting(true);
+    const now = new Date();
     const generatedId = `YIB-${Math.floor(100000 + Math.random() * 900000)}`;
     const newInquiry: InquiryItem = {
       id: generatedId,
@@ -60,7 +62,8 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
       projectLocation: city.trim() || 'Hyderabad / Telangana',
       estimatedBudget: budget,
       message: notes.trim() || 'Industrial site consultation request submitted via quote modal.',
-      timestamp: 'Today, Just now',
+      timestamp: formatExactDateTime(now),
+      createdAt: now.toISOString(),
       source: 'Quote Modal',
       status: 'New',
       attachedPhotoUrl: attachedPhotoUrl || undefined

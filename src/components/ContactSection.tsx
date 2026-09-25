@@ -25,6 +25,7 @@ import {
   formatGmailWebUrl,
   sendInquiryViaEmailApi
 } from '../utils/inquiryStorage';
+import { formatExactDateTime } from '../utils/dateTimeUtils';
 
 interface ContactSectionProps {
   isStandalonePage?: boolean;
@@ -96,6 +97,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     setIsSubmitting(true);
     setEmailApiStatus('sending');
 
+    const now = new Date();
     const generatedId = `YIB-${Math.floor(100000 + Math.random() * 900000)}`;
     const newInquiry: InquiryItem = {
       id: generatedId,
@@ -106,7 +108,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       projectLocation: formData.projectLocation.trim() || 'Hyderabad / Telangana',
       estimatedBudget: formData.estimatedBudget,
       message: formData.message.trim() || 'Detailed industrial consultation & BOQ estimate requested.',
-      timestamp: 'Today, Just now',
+      timestamp: formatExactDateTime(now),
+      createdAt: now.toISOString(),
       source: 'Contact Form',
       status: 'New',
       attachedPhotoUrl: formData.attachedPhotoUrl || undefined

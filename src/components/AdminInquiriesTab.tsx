@@ -18,11 +18,13 @@ import {
   AlertCircle,
   Camera,
   Eye,
-  X
+  X,
+  Calendar
 } from 'lucide-react';
 import { InquiryItem } from '../types';
 import { COMPANY_INFO } from '../data/companyData';
 import { formatWhatsAppMessage, formatEmailSubject, formatEmailBody } from '../utils/inquiryStorage';
+import { getInquiryDateTime, formatExactDateTime } from '../utils/dateTimeUtils';
 
 interface AdminInquiriesTabProps {
   inquiries: InquiryItem[];
@@ -78,6 +80,7 @@ export const AdminInquiriesTab: React.FC<AdminInquiriesTabProps> = ({
   const closedCount = inquiries.filter((i) => i.status === 'Closed').length;
 
   const handleCopyLeadDetails = (inq: InquiryItem) => {
+    const dt = getInquiryDateTime(inq.timestamp, inq.createdAt);
     const summary = `YARDS INFRA LEAD [${inq.id}]
 Client: ${inq.fullName}
 Phone: ${inq.phoneNumber}
@@ -85,7 +88,7 @@ Email: ${inq.email}
 Project: ${inq.projectType}
 Location: ${inq.projectLocation}
 Budget: ${inq.estimatedBudget}
-Received: ${inq.timestamp}
+Received Date & Time: ${dt.fullStr}
 Requirements: ${inq.message || 'None'}`;
     
     navigator.clipboard.writeText(summary);
@@ -98,19 +101,24 @@ Requirements: ${inq.message || 'None'}`;
       return;
     }
 
-    const headers = ['ID', 'Date', 'Full Name', 'Phone', 'Email', 'Project Type', 'Location', 'Budget', 'Status', 'Message'];
-    const rows = inquiries.map((i) => [
-      `"${i.id}"`,
-      `"${i.timestamp}"`,
-      `"${i.fullName.replace(/"/g, '""')}"`,
-      `"${i.phoneNumber}"`,
-      `"${i.email}"`,
-      `"${i.projectType}"`,
-      `"${(i.projectLocation || '').replace(/"/g, '""')}"`,
-      `"${i.estimatedBudget}"`,
-      `"${i.status}"`,
-      `"${(i.message || '').replace(/"/g, '""')}"`,
-    ]);
+    const headers = ['ID', 'Date', 'Time', 'Full Timestamp', 'Full Name', 'Phone', 'Email', 'Project Type', 'Location', 'Budget', 'Status', 'Message'];
+    const rows = inquiries.map((i) => {
+      const dt = getInquiryDateTime(i.timestamp, i.createdAt);
+      return [
+        `"${i.id}"`,
+        `"${dt.dateStr}"`,
+        `"${dt.timeStr}"`,
+        `"${dt.fullStr}"`,
+        `"${i.fullName.replace(/"/g, '""')}"`,
+        `"${i.phoneNumber}"`,
+        `"${i.email}"`,
+        `"${i.projectType}"`,
+        `"${(i.projectLocation || '').replace(/"/g, '""')}"`,
+        `"${i.estimatedBudget}"`,
+        `"${i.status}"`,
+        `"${(i.message || '').replace(/"/g, '""')}"`,
+      ];
+    });
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -130,6 +138,7 @@ Requirements: ${inq.message || 'None'}`;
       return;
     }
 
+    const now = new Date();
     const leadId = `YIB-${Math.floor(100000 + Math.random() * 900000)}`;
     const newInquiry: InquiryItem = {
       id: leadId,
@@ -140,7 +149,8 @@ Requirements: ${inq.message || 'None'}`;
       projectLocation: newLeadForm.projectLocation || 'Hyderabad',
       estimatedBudget: newLeadForm.estimatedBudget || '₹1.5 Crore – ₹3 Crore',
       message: newLeadForm.message || 'Direct lead logged from office walk-in / phone consultation.',
-      timestamp: 'Today, Just now',
+      timestamp: formatExactDateTime(now),
+      createdAt: now.toISOString(),
       source: 'Contact Form',
       status: (newLeadForm.status as any) || 'New'
     };
@@ -267,6 +277,7 @@ Requirements: ${inq.message || 'None'}`;
           {filteredInquiries.map((inq) => {
             const isHighlight = inq.id === 'YIB-858343' || inq.id === selectedInquiryId;
             const cleanPhone = inq.phoneNumber.replace(/[^0-9]/g, '');
+            const dateTime = getInquiryDateTime(inq.timestamp, inq.createdAt);
 
             return (
               <div
@@ -288,11 +299,34 @@ Requirements: ${inq.message || 'None'}`;
                         Target User Query
                       </span>
                     )}
-                    <span className="text-xs text-[#718094] flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>{inq.timestamp}</span>
-                    </span>
-                    <span className="text-[10px] text-[#8e9cae] px-2 py-0.5 bg-[#1a2230] rounded-sm">
+
+                    {/* Prominent Exact Date & Time Display with Relative Badge */}
+                    <div 
+                      className="flex items-center gap-2 bg-[#161e2b] border border-[#27354a] px-2.5 py-1 rounded-sm text-xs shadow-inner"
+                      title={`Exact submission timestamp: ${dateTime.fullStr}`}
+                    >
+                      <div className="flex items-center gap-1.5 text-[#f1f5f9] font-medium" title="Date received">
+                        <Calendar className="w-3.5 h-3.5 text-[#c5a059]" />
+                        <span>{dateTime.dateStr}</span>
+                      </div>
+                      <span className="text-[#475569] font-light">|</span>
+                      <div className="flex items-center gap-1.5 text-[#f8fafc] font-mono font-semibold" title="Time received">
+                        <Clock className="w-3.5 h-3.5 text-[#c5a059]" />
+                        <span>{dateTime.timeStr}</span>
+                      </div>
+                      <span 
+                        className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-sm border ${
+                          dateTime.relativeStr === 'Just now'
+                            ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-400 animate-pulse'
+                            : 'bg-[#1e2837] border-[#314056] text-[#94a3b8]'
+                        }`}
+                        title="Relative age"
+                      >
+                        {dateTime.relativeStr}
+                      </span>
+                    </div>
+
+                    <span className="text-[10px] text-[#8e9cae] px-2 py-1 bg-[#1a2230] border border-[#222c3c] rounded-sm">
                       Via {inq.source}
                     </span>
                   </div>

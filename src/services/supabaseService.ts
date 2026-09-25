@@ -1,5 +1,6 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { InquiryItem, ProjectItem, TeamMember } from '../types';
+import { getInquiryDateTime } from '../utils/dateTimeUtils';
 
 // ==========================================
 // INQUIRIES SERVICE
@@ -22,20 +23,24 @@ export async function fetchInquiriesFromSupabase(): Promise<InquiryItem[] | null
 
     if (!data) return [];
 
-    return data.map((row: any): InquiryItem => ({
-      id: row.id,
-      fullName: row.full_name || '',
-      phoneNumber: row.phone_number || '',
-      email: row.email || '',
-      projectType: row.project_type || 'Industrial Sheds',
-      projectLocation: row.project_location || '',
-      estimatedBudget: row.estimated_budget || '',
-      message: row.message || '',
-      timestamp: row.timestamp || new Date(row.created_at || Date.now()).toLocaleString('en-IN'),
-      source: row.source || 'Contact Form',
-      status: row.status || 'New',
-      attachedPhotoUrl: row.attached_photo_url || undefined,
-    }));
+    return data.map((row: any): InquiryItem => {
+      const dateTime = getInquiryDateTime(row.timestamp, row.created_at);
+      return {
+        id: row.id,
+        fullName: row.full_name || '',
+        phoneNumber: row.phone_number || '',
+        email: row.email || '',
+        projectType: row.project_type || 'Industrial Sheds',
+        projectLocation: row.project_location || '',
+        estimatedBudget: row.estimated_budget || '',
+        message: row.message || '',
+        timestamp: dateTime.fullStr,
+        createdAt: row.created_at || dateTime.iso,
+        source: row.source || 'Contact Form',
+        status: row.status || 'New',
+        attachedPhotoUrl: row.attached_photo_url || undefined,
+      };
+    });
   } catch (err) {
     console.error('[Supabase] Error in fetchInquiriesFromSupabase:', err);
     return null;
@@ -47,6 +52,7 @@ export async function saveInquiryToSupabase(inquiry: InquiryItem): Promise<boole
   if (!client) return false;
 
   try {
+    const dateTime = getInquiryDateTime(inquiry.timestamp, inquiry.createdAt);
     const payload = {
       id: inquiry.id,
       full_name: inquiry.fullName,
@@ -56,10 +62,11 @@ export async function saveInquiryToSupabase(inquiry: InquiryItem): Promise<boole
       project_location: inquiry.projectLocation,
       estimated_budget: inquiry.estimatedBudget,
       message: inquiry.message,
-      timestamp: inquiry.timestamp,
+      timestamp: dateTime.fullStr,
       source: inquiry.source,
       status: inquiry.status,
       attached_photo_url: inquiry.attachedPhotoUrl || null,
+      created_at: inquiry.createdAt || dateTime.iso,
     };
 
     const { error } = await client

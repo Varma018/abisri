@@ -98,7 +98,8 @@ export interface InquiryItem {
   projectLocation: string;
   estimatedBudget: string;
   message: string;
-  timestamp: string;
+  timestamp: string; // Formatted exact timestamp e.g. "25 Sep 2026, 10:15 AM"
+  createdAt?: string; // ISO timestamp string e.g. "2026-09-25T04:45:31.125Z"
   source: 'Contact Form' | 'Consultation Modal' | 'Quote Modal';
   status: 'New' | 'Contacted' | 'Site Visit Scheduled' | 'Closed';
   attachedPhotoUrl?: string;

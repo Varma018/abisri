@@ -2,6 +2,7 @@ import { InquiryItem } from '../types';
 import { INITIAL_INQUIRIES } from '../data/inquiriesData';
 import { COMPANY_INFO } from '../data/companyData';
 import { saveInquiryToSupabase } from '../services/supabaseService';
+import { getInquiryDateTime } from './dateTimeUtils';
 
 const STORAGE_KEY = 'yards_infra_inquiries';
 
@@ -11,7 +12,14 @@ export function getStoredInquiries(): InquiryItem[] {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((item: any): InquiryItem => {
+          const dt = getInquiryDateTime(item.timestamp, item.createdAt);
+          return {
+            ...item,
+            timestamp: dt.fullStr,
+            createdAt: item.createdAt || dt.iso,
+          };
+        });
       }
     }
   } catch (e) {
