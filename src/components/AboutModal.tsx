@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Award, Shield, CheckCircle2, Building, Users, ArrowRight } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { YIBLogo } from './YIBLogo';
 
 interface AboutModalProps {
@@ -14,6 +14,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
   onClose,
   onContactClick,
 }) => {
+  const { companyInfo } = useCompanyInfo();
   if (!isOpen) return null;
 
   return (
@@ -51,7 +52,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
               Built on Values. Driven by Purpose.
             </h2>
             <p className="text-sm text-gray-700 leading-relaxed mb-4">
-              {COMPANY_INFO.aboutDescription}
+              {companyInfo.aboutDescription}
             </p>
             <p className="text-sm text-gray-600 leading-relaxed">
               We eliminate traditional construction friction through itemized Bills of Quantities (BOQ), certified structural steel fabrication, high-tensile anchor bolt testing, and rigorous on-site crane safety audits.
@@ -93,7 +94,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({
             <div className="space-y-2 text-xs text-gray-700">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#E31B23]" />
-                <span>{COMPANY_INFO.reraReg}</span>
+                <span>{companyInfo.reraReg}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#E31B23]" />

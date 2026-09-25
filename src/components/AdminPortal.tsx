@@ -25,20 +25,23 @@ import {
   AlertTriangle,
   Database,
   Eye,
-  EyeOff
+  EyeOff,
+  PhoneCall
 } from 'lucide-react';
 import { ProjectItem, TeamMember, InquiryItem } from '../types';
 import { COMPANY_INFO } from '../data/companyData';
 import { AdminInquiriesTab } from './AdminInquiriesTab';
 import { AdminDatabaseTab } from './AdminDatabaseTab';
+import { AdminContactTab } from './AdminContactTab';
 import { ImageUploadField } from './ImageUploadField';
 import { MultipleImageUploadField } from './MultipleImageUploadField';
+import { useCompanyInfo } from '../context/CompanyContext';
 
 interface AdminPortalProps {
   projects: ProjectItem[];
   teamMembers: TeamMember[];
   inquiries: InquiryItem[];
-  initialTab?: 'projects' | 'team' | 'inquiries' | 'database' | 'info';
+  initialTab?: 'projects' | 'team' | 'inquiries' | 'contact' | 'database' | 'info';
   onAddProject: (project: ProjectItem) => void;
   onUpdateProject: (project: ProjectItem) => void;
   onDeleteProject: (projectId: string) => void;
@@ -78,8 +81,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [authError, setAuthError] = useState('');
   const [newCustomPassword, setNewCustomPassword] = useState('');
 
+  // Live Company Contact Details from Context
+  const { companyInfo, updateCompanyInfo, resetCompanyInfo, isSaving: isSavingCompanyInfo } = useCompanyInfo();
+
   // Active Admin Section
-  const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'database' | 'info'>(initialTab);
+  const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
   const [notification, setNotification] = useState<string | null>(null);
 
   // Project Form State
@@ -502,6 +508,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
 
             <button
+              id="admin-contact-tab-btn"
+              onClick={() => setAdminTab('contact')}
+              className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
+                adminTab === 'contact'
+                  ? 'bg-[#c5a059] text-[#0e1117] shadow-md shadow-[#c5a059]/20 font-bold'
+                  : 'bg-[#131924] text-[#9ca3af] hover:text-[#f8fafc] border border-[#232c3d]'
+              }`}
+            >
+              <PhoneCall className="w-4 h-4" />
+              <span>Contact Details</span>
+            </button>
+
+            <button
               id="admin-database-tab-btn"
               onClick={() => setAdminTab('database')}
               className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
@@ -768,6 +787,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           />
         )}
 
+        {/* TAB: CONTACT & COMPANY DETAILS */}
+        {adminTab === 'contact' && (
+          <AdminContactTab
+            companyInfo={companyInfo}
+            onSaveCompanyInfo={updateCompanyInfo}
+            onResetCompanyInfo={resetCompanyInfo}
+            showToast={showToast}
+            isSaving={isSavingCompanyInfo}
+          />
+        )}
+
         {/* TAB: SUPABASE DATABASE */}
         {adminTab === 'database' && (
           <AdminDatabaseTab
@@ -783,10 +813,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {adminTab === 'info' && (
           <div className="space-y-6 max-w-3xl">
             <div className="bg-[#121622] border border-[#222b3d] p-6 rounded-sm space-y-4">
-              <h3 className="font-cinzel text-lg font-bold text-[#f8fafc] flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#c5a059]" />
-                <span>Configured Company Endpoints</span>
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-cinzel text-lg font-bold text-[#f8fafc] flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-[#c5a059]" />
+                  <span>Configured Company Endpoints</span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setAdminTab('contact')}
+                  className="px-3 py-1.5 rounded-sm bg-[#c5a059] hover:bg-[#d4af37] text-[#0e1117] text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Contact Details</span>
+                </button>
+              </div>
 
               <div className="space-y-3 text-xs text-[#95a3b6]">
                 <div className="flex items-center justify-between p-3 bg-[#161d2a] rounded-sm">
@@ -794,7 +834,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <Phone className="w-3.5 h-3.5 text-[#c5a059]" />
                     Official Mobile / WhatsApp:
                   </span>
-                  <span className="text-[#f8fafc] font-semibold">{COMPANY_INFO.phone}</span>
+                  <span className="text-[#f8fafc] font-semibold">{companyInfo.phone}</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 bg-[#161d2a] rounded-sm">
@@ -802,7 +842,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <Mail className="w-3.5 h-3.5 text-[#c5a059]" />
                     Official Inquiries Email:
                   </span>
-                  <span className="text-[#f8fafc] font-semibold">{COMPANY_INFO.email}</span>
+                  <span className="text-[#f8fafc] font-semibold">{companyInfo.email}</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 bg-[#161d2a] rounded-sm">
@@ -810,7 +850,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <Award className="w-3.5 h-3.5 text-[#c5a059]" />
                     RERA Regulatory Accreditation:
                   </span>
-                  <span className="text-[#f8fafc]">{COMPANY_INFO.reraReg}</span>
+                  <span className="text-[#f8fafc]">{companyInfo.reraReg}</span>
                 </div>
               </div>
 

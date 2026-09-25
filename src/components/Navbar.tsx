@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, Shield } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { NavView } from '../types';
 import { YIBLogo } from './YIBLogo';
 
@@ -17,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenConsultation,
   unreadInquiriesCount = 0
 }) => {
+  const { companyInfo } = useCompanyInfo();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -110,11 +111,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden sm:flex items-center gap-4">
             <a
               id="header-phone-action"
-              href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`}
+              href={`tel:${companyInfo.phone.replace(/[^0-9+]/g, '')}`}
               className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-[#E31B23] transition-colors px-2 py-1"
             >
               <Phone className="w-4 h-4 text-[#E31B23]" />
-              <span>{COMPANY_INFO.phone}</span>
+              <span>{companyInfo.phone}</span>
             </a>
           </div>
 
@@ -175,11 +176,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <div className="pt-2 flex flex-col gap-3">
             <a
-              href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`}
+              href={`tel:${companyInfo.phone.replace(/[^0-9+]/g, '')}`}
               className="flex items-center gap-2 text-sm text-gray-800 font-semibold py-2 px-1"
             >
               <Phone className="w-4 h-4 text-[#E31B23]" />
-              <span>{COMPANY_INFO.phone}</span>
+              <span>{companyInfo.phone}</span>
             </a>
           </div>
         </div>

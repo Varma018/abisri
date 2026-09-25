@@ -7,7 +7,8 @@ import {
   ArrowUp,
   Shield
 } from 'lucide-react';
-import { COMPANY_INFO, SERVICES_DATA } from '../data/companyData';
+import { SERVICES_DATA } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { NavView } from '../types';
 import { YIBLogo } from './YIBLogo';
 
@@ -17,6 +18,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const { companyInfo } = useCompanyInfo();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -65,16 +67,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </button>
 
             <p className="text-sm text-[#FF5A5F] font-semibold tracking-wide">
-              {COMPANY_INFO.tagline}
+              {companyInfo.tagline}
             </p>
 
             <p className="text-xs sm:text-sm text-gray-400 leading-relaxed pr-2">
-              {COMPANY_INFO.subTagline}
+              {companyInfo.subTagline}
             </p>
 
             <div className="text-xs text-gray-300 font-medium py-1">
               <span className="text-[#E31B23] font-bold">Motto: </span>
-              {COMPANY_INFO.motto}
+              {companyInfo.motto}
             </div>
 
             {/* Social Media Links */}
@@ -149,19 +151,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#E31B23] shrink-0 mt-0.5" />
                 <p className="leading-relaxed text-gray-300">
-                  {COMPANY_INFO.address}
+                  {companyInfo.address}
                 </p>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#E31B23] shrink-0" />
-                <a href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`} className="text-gray-300 hover:text-[#E31B23] transition-colors">
-                  {COMPANY_INFO.phone}
+                <a href={`tel:${companyInfo.phone.replace(/[^0-9+]/g, '')}`} className="text-gray-300 hover:text-[#E31B23] transition-colors">
+                  {companyInfo.phone}
                 </a>
               </div>
 
               <div className="pt-2 text-[11px] text-gray-400 border-t border-gray-800">
-                <span>Working: {COMPANY_INFO.workingHours}</span>
+                <span>Working: {companyInfo.workingHours}</span>
               </div>
             </div>
           </div>
@@ -176,7 +178,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           <div className="flex items-center gap-6">
-            <span className="text-[11px] text-gray-500">{COMPANY_INFO.reraReg}</span>
+            <span className="text-[11px] text-gray-500">{companyInfo.reraReg}</span>
             <button
               onClick={scrollToTop}
               className="p-2 rounded bg-gray-800 hover:bg-[#E31B23] hover:text-white text-gray-300 transition-colors cursor-pointer"

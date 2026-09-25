@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronDown, Warehouse, Package, Cog, Building2 } from 'lucide-react';
-import { COMPANY_INFO, CORE_FOUR_AREAS } from '../data/companyData';
+import { CORE_FOUR_AREAS } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { YIBLogo } from './YIBLogo';
 
 interface HeroSectionProps {
@@ -9,6 +10,7 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = () => {
+  const { companyInfo } = useCompanyInfo();
   const handleScrollDown = () => {
     const statsElem = document.getElementById('stats-section');
     if (statsElem) {
@@ -77,16 +79,16 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
             id="hero-supporting-text"
             className="text-lg sm:text-xl text-gray-700 font-normal leading-relaxed mb-6 max-w-2xl"
           >
-            {COMPANY_INFO.subTagline}
+            {companyInfo.subTagline}
           </p>
 
           {/* Inspiring Company Quote */}
           <div className="border-l-4 border-[#E31B23] pl-4 py-1 mb-2 bg-red-50/50 rounded-r">
             <p className="text-sm sm:text-base font-semibold text-gray-800 italic">
-              "{COMPANY_INFO.quote}"
+              "{companyInfo.quote}"
             </p>
             <p className="text-xs text-[#E31B23] font-bold uppercase tracking-wider mt-1">
-              — {COMPANY_INFO.peopleMotto}
+              — {companyInfo.peopleMotto}
             </p>
           </div>
         </div>

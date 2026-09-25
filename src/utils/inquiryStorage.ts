@@ -1,8 +1,8 @@
 import { InquiryItem } from '../types';
 import { INITIAL_INQUIRIES } from '../data/inquiriesData';
-import { COMPANY_INFO } from '../data/companyData';
 import { saveInquiryToSupabase } from '../services/supabaseService';
 import { getInquiryDateTime } from './dateTimeUtils';
+import { getStoredCompanyInfo } from './companyStorage';
 
 const STORAGE_KEY = 'yards_infra_inquiries';
 
@@ -74,6 +74,7 @@ export function formatEmailSubject(inquiry: InquiryItem): string {
 }
 
 export function formatEmailBody(inquiry: InquiryItem): string {
+  const company = getStoredCompanyInfo();
   return `Dear Yards Infra Builders Team,
 
 A new construction inquiry has been submitted:
@@ -99,7 +100,7 @@ ${inquiry.message || 'No additional notes provided.'}
 To respond to this inquiry:
 Call Client: ${inquiry.phoneNumber}
 Email Client: ${inquiry.email}
-Yards Infra Office: ${COMPANY_INFO.phone} | ${COMPANY_INFO.email}
+Yards Infra Office: ${company.phone} | ${company.email}
 `;
 }
 
@@ -108,7 +109,8 @@ Yards Infra Office: ${COMPANY_INFO.phone} | ${COMPANY_INFO.email}
  * Opens mail.google.com in browser without needing desktop mail software!
  */
 export function formatGmailWebUrl(inquiry: InquiryItem): string {
-  const to = encodeURIComponent(COMPANY_INFO.email);
+  const company = getStoredCompanyInfo();
+  const to = encodeURIComponent(company.email);
   const cc = encodeURIComponent(inquiry.email);
   const subject = encodeURIComponent(formatEmailSubject(inquiry));
   const body = encodeURIComponent(formatEmailBody(inquiry));
@@ -119,7 +121,8 @@ export function formatGmailWebUrl(inquiry: InquiryItem): string {
  * Standard mailto URL for default system email clients (Outlook, Apple Mail, etc.)
  */
 export function formatMailtoUrl(inquiry: InquiryItem): string {
-  const to = COMPANY_INFO.email;
+  const company = getStoredCompanyInfo();
+  const to = company.email;
   const cc = encodeURIComponent(inquiry.email);
   const subject = encodeURIComponent(formatEmailSubject(inquiry));
   const body = encodeURIComponent(formatEmailBody(inquiry));
@@ -130,8 +133,9 @@ export function formatMailtoUrl(inquiry: InquiryItem): string {
  * Direct link for the client to email themselves or review in Gmail
  */
 export function formatClientCopyGmailUrl(inquiry: InquiryItem): string {
+  const company = getStoredCompanyInfo();
   const to = encodeURIComponent(inquiry.email);
-  const cc = encodeURIComponent(COMPANY_INFO.email);
+  const cc = encodeURIComponent(company.email);
   const subject = encodeURIComponent(`Your Yards Infra Consultation Request [${inquiry.id}]`);
   const body = encodeURIComponent(
     `Hello ${inquiry.fullName},\n\nHere is a record of your construction consultation request with Yards Infra Builders.\n\n` +
@@ -141,12 +145,13 @@ export function formatClientCopyGmailUrl(inquiry: InquiryItem): string {
 }
 
 /**
- * Attempts automated background email delivery via FormSubmit API to varma.prabbas@gmail.com
+ * Attempts automated background email delivery via FormSubmit API to official email
  * FormSubmit transmits the form fields directly to the target email inbox.
  */
 export async function sendInquiryViaEmailApi(inquiry: InquiryItem): Promise<{ success: boolean; message: string }> {
+  const company = getStoredCompanyInfo();
   try {
-    const response = await fetch(`https://formsubmit.co/ajax/${COMPANY_INFO.email}`, {
+    const response = await fetch(`https://formsubmit.co/ajax/${company.email}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +179,7 @@ export async function sendInquiryViaEmailApi(inquiry: InquiryItem): Promise<{ su
       const data = await response.json();
       return { 
         success: true, 
-        message: data.message || `Dispatched to ${COMPANY_INFO.email}` 
+        message: data.message || `Dispatched to ${company.email}` 
       };
     } else {
       return { 

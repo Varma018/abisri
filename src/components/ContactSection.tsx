@@ -15,10 +15,10 @@ import {
   ExternalLink,
   Inbox
 } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
 import { ContactFormData, InquiryItem } from '../types';
 import { ImageUploadField } from './ImageUploadField';
 import { YIBLogo } from './YIBLogo';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { 
   addStoredInquiry, 
   formatWhatsAppMessage, 
@@ -40,6 +40,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   onOpenAdminInquiries,
   onOpenEmail
 }) => {
+  const { companyInfo } = useCompanyInfo();
   const [emailCopied, setEmailCopied] = useState(false);
   const [formData, setFormData] = useState<ContactFormData>({
     fullName: '',
@@ -223,10 +224,10 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                       Direct Phone & WhatsApp
                     </h4>
                     <a 
-                      href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`}
+                      href={`tel:${companyInfo.phone.replace(/[^0-9+]/g, '')}`}
                       className="block text-gray-900 hover:text-[#E31B23] font-bold text-base transition-colors"
                     >
-                      {COMPANY_INFO.phone}
+                      {companyInfo.phone}
                     </a>
                     <span className="block text-gray-500 text-xs mt-0.5">
                       Mon – Sat (9:00 AM – 6:00 PM IST)
@@ -250,20 +251,20 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                           if (onOpenEmail) {
                             onOpenEmail();
                           } else {
-                            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${COMPANY_INFO.email}`, '_blank');
+                            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${companyInfo.email}`, '_blank');
                           }
                         }}
                         className="text-gray-900 hover:text-[#E31B23] font-bold transition-colors cursor-pointer text-left"
                         title="Click to open email options or composer"
                       >
-                        {COMPANY_INFO.email}
+                        {companyInfo.email}
                       </button>
                       <button
                         type="button"
                         onClick={() => {
                           try {
                             if (navigator.clipboard && navigator.clipboard.writeText) {
-                              navigator.clipboard.writeText(COMPANY_INFO.email);
+                              navigator.clipboard.writeText(companyInfo.email);
                             }
                             setEmailCopied(true);
                             setTimeout(() => setEmailCopied(false), 2500);
@@ -278,7 +279,7 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                         {emailCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                       <a
-                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${COMPANY_INFO.email}&su=${encodeURIComponent('Inquiry - Yards Infra and Builders LLP')}`}
+                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${companyInfo.email}&su=${encodeURIComponent('Inquiry - Yards Infra and Builders LLP')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[11px] px-2 py-0.5 rounded bg-red-50 text-[#E31B23] hover:bg-red-100 font-semibold border border-red-200 transition-colors flex items-center gap-1 cursor-pointer"
@@ -304,10 +305,10 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                       Registered Office
                     </h4>
                     <p className="text-gray-800 leading-relaxed font-medium">
-                      {COMPANY_INFO.address}
+                      {companyInfo.address}
                     </p>
                     <p className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
-                      <span className="text-[#E31B23] font-bold">Regional Office:</span> {COMPANY_INFO.regionalOffice}
+                      <span className="text-[#E31B23] font-bold">Regional Office:</span> {companyInfo.regionalOffice}
                     </p>
                   </div>
                 </div>
@@ -322,7 +323,7 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                       Working Hours
                     </h4>
                     <p className="text-gray-800 font-medium">
-                      {COMPANY_INFO.workingHours}
+                      {companyInfo.workingHours}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       Site audits and emergency structural inspections available by prior appointment.
@@ -337,7 +338,7 @@ Notes: ${formData.message || 'Consultation requested.'}`;
             <div className="bg-white border border-gray-200 rounded p-5 text-xs text-gray-600 flex items-start gap-3 shadow-xs">
               <ShieldCheck className="w-5 h-5 text-[#E31B23] shrink-0 mt-0.5" />
               <p>
-                {COMPANY_INFO.reraReg}. All projects covered with contractual structural stability warranties and transparent milestone payments.
+                {companyInfo.reraReg}. All projects covered with contractual structural stability warranties and transparent milestone payments.
               </p>
             </div>
           </div>
@@ -380,7 +381,7 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                       <div className="flex-1 text-xs">
                         <div className="flex flex-wrap items-center justify-between gap-1">
                           <span className="font-bold text-gray-900 uppercase tracking-wider text-[11px]">
-                            Email Dispatch: {COMPANY_INFO.email}
+                            Email Dispatch: {companyInfo.email}
                           </span>
                           <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
                             emailApiStatus === 'dispatched'
@@ -397,7 +398,7 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                           </span>
                         </div>
                         <p className="text-gray-600 text-[11px] mt-1 leading-relaxed">
-                          {emailApiMessage || `Automated background dispatch triggered to ${COMPANY_INFO.email}.`}
+                          {emailApiMessage || `Automated background dispatch triggered to ${companyInfo.email}.`}
                         </p>
                       </div>
                     </div>
@@ -437,7 +438,7 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                             </span>
                           </div>
                           <p className="text-[11px] text-gray-700 mt-1.5 leading-relaxed">
-                            Opens in Gmail with all specs pre-filled to <strong>{COMPANY_INFO.email}</strong>.
+                            Opens in Gmail with all specs pre-filled to <strong>{companyInfo.email}</strong>.
                           </p>
                         </div>
 
@@ -468,13 +469,13 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                             </span>
                           </div>
                           <p className="text-[11px] text-gray-700 mt-1.5 leading-relaxed">
-                            Send specs directly to our WhatsApp (<strong>+91 86887 44795</strong>).
+                            Send specs directly to our WhatsApp (<strong>{companyInfo.phone}</strong>).
                           </p>
                         </div>
 
                         <a
                           id="whatsapp-dispatch-btn"
-                          href={`https://wa.me/${COMPANY_INFO.whatsappNumber}?text=${encodeURIComponent(
+                          href={`https://wa.me/${companyInfo.whatsappNumber}?text=${encodeURIComponent(
                             submittedInquiry 
                               ? formatWhatsAppMessage(submittedInquiry)
                               : `Hello Yards Infra and Builders LLP,\n\nI have submitted an inquiry on your website.\n- Reference ID: ${inquiryId}\n- Name: ${formData.fullName}\n- Phone: ${formData.phoneNumber}\n- Scope: ${formData.projectType}\n- Location: ${formData.projectLocation || 'Hyderabad'}\n- Budget: ${formData.estimatedBudget}`
@@ -523,11 +524,11 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                   {/* Secondary Quick Actions */}
                   <div className="flex flex-wrap items-center justify-center gap-3 pt-2 max-w-xl mx-auto">
                     <a
-                      href={`tel:${COMPANY_INFO.phone}`}
+                      href={`tel:${companyInfo.phone}`}
                       className="px-4 py-2 rounded bg-white border border-gray-300 hover:border-[#E31B23] text-gray-700 hover:text-[#E31B23] text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5"
                     >
                       <Phone className="w-3.5 h-3.5 text-[#E31B23]" />
-                      <span>Call {COMPANY_INFO.phone}</span>
+                      <span>Call {companyInfo.phone}</span>
                     </a>
 
                     <button

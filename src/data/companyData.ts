@@ -1,6 +1,6 @@
-import { ServiceItem, ProjectItem, TestimonialItem, ProcessStep, WhyChooseUsItem, StatItem, TeamMember } from '../types';
+import { ServiceItem, ProjectItem, TestimonialItem, ProcessStep, WhyChooseUsItem, StatItem, TeamMember, CompanyInfo } from '../types';
 
-export const COMPANY_INFO = {
+export const COMPANY_INFO: CompanyInfo = {
   name: 'Yards Infra and Builders LLP',
   shortName: 'Yards Infra',
   monogram: 'YIB',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, PhoneCall } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { YIBLogo } from './YIBLogo';
 
 interface CTASectionProps {
@@ -13,6 +13,7 @@ export const CTASection: React.FC<CTASectionProps> = ({
   onOpenConsultation,
   onScrollToContact,
 }) => {
+  const { companyInfo } = useCompanyInfo();
   return (
     <section className="py-16 sm:py-24 bg-white relative border-t border-b border-gray-200">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -38,7 +39,7 @@ export const CTASection: React.FC<CTASectionProps> = ({
         {/* Quote banner */}
         <div className="inline-block bg-red-50 border border-red-200 rounded px-6 py-2.5 mb-10">
           <span className="text-xs sm:text-sm font-bold text-[#E31B23] tracking-wide uppercase">
-            "{COMPANY_INFO.whyChooseQuote}"
+            "{companyInfo.whyChooseQuote}"
           </span>
         </div>
 
@@ -57,11 +58,11 @@ export const CTASection: React.FC<CTASectionProps> = ({
         {/* Direct quick call link */}
         <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-gray-500 font-medium">
           <a
-            href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`}
+            href={`tel:${companyInfo.phone.replace(/[^0-9+]/g, '')}`}
             className="flex items-center gap-2 hover:text-[#E31B23] transition-colors"
           >
             <PhoneCall className="w-4 h-4 text-[#E31B23]" />
-            <span>Direct Line: {COMPANY_INFO.phone}</span>
+            <span>Direct Line: {companyInfo.phone}</span>
           </a>
         </div>
 

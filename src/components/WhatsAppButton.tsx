@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 
 export const WhatsAppButton: React.FC = () => {
+  const { companyInfo } = useCompanyInfo();
   const [showTooltip, setShowTooltip] = useState(true);
 
-  const whatsappUrl = `https://wa.me/${COMPANY_INFO.whatsappNumber}?text=${encodeURIComponent(
-    COMPANY_INFO.whatsappMessage
+  const whatsappUrl = `https://wa.me/${companyInfo.whatsappNumber}?text=${encodeURIComponent(
+    companyInfo.whatsappMessage
   )}`;
 
   return (

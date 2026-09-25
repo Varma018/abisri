@@ -21,7 +21,8 @@ import { ConsultationModal } from './components/ConsultationModal';
 import { EmailModal } from './components/EmailModal';
 import { AdminPortal } from './components/AdminPortal';
 import { ProjectItem, ServiceItem, TeamMember, NavView, InquiryItem } from './types';
-import { PROJECTS_DATA, INITIAL_TEAM_MEMBERS, COMPANY_INFO } from './data/companyData';
+import { PROJECTS_DATA, INITIAL_TEAM_MEMBERS } from './data/companyData';
+import { useCompanyInfo } from './context/CompanyContext';
 import { getStoredInquiries, saveStoredInquiries, addStoredInquiry } from './utils/inquiryStorage';
 import { isSupabaseConfigured, getSupabaseClient } from './lib/supabase';
 import { 
@@ -38,6 +39,8 @@ import {
 import { ArrowRight, Building, Layers, ShieldCheck, Star, MapPin } from 'lucide-react';
 
 export default function App() {
+  const { companyInfo } = useCompanyInfo();
+
   // Navigation View State: 'home' | 'about' | 'services' | 'projects' | 'why-us' | 'contact' | 'admin'
   const [currentView, setCurrentView] = useState<NavView>('home');
 
@@ -54,17 +57,17 @@ export default function App() {
     prefilledSubject?: string;
   }>({
     isOpen: false,
-    recipientEmail: COMPANY_INFO.email,
-    recipientName: 'Yards Infra and Builders LLP',
-    prefilledSubject: 'Construction & Infrastructure Project Inquiry - Yards Infra'
+    recipientEmail: companyInfo.email,
+    recipientName: companyInfo.name,
+    prefilledSubject: `Construction & Infrastructure Project Inquiry - ${companyInfo.shortName}`
   });
 
   const handleOpenEmail = (recipientEmail?: string, recipientName?: string, subject?: string) => {
     setEmailModalData({
       isOpen: true,
-      recipientEmail: recipientEmail || COMPANY_INFO.email,
-      recipientName: recipientName || 'Yards Infra and Builders LLP',
-      prefilledSubject: subject || 'Construction & Infrastructure Project Inquiry - Yards Infra'
+      recipientEmail: recipientEmail || companyInfo.email,
+      recipientName: recipientName || companyInfo.name,
+      prefilledSubject: subject || `Construction & Infrastructure Project Inquiry - ${companyInfo.shortName}`
     });
   };
 

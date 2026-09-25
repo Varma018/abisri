@@ -11,7 +11,7 @@ import {
   Phone,
   CheckCircle2
 } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 
 interface EmailModalProps {
   isOpen: boolean;
@@ -33,11 +33,13 @@ interface EmailModalProps {
 export const EmailModal: React.FC<EmailModalProps> = ({
   isOpen,
   onClose,
-  recipientEmail = COMPANY_INFO.email,
+  recipientEmail,
   recipientName = 'Yards Infra and Builders LLP',
   prefilledSubject = 'Construction & Infrastructure Project Inquiry - Yards Infra',
   onSendDirectInquiry
 }) => {
+  const { companyInfo } = useCompanyInfo();
+  const effectiveRecipientEmail = recipientEmail || companyInfo.email;
   const [copied, setCopied] = useState(false);
   const [subject, setSubject] = useState(prefilledSubject);
   const [senderName, setSenderName] = useState('');
@@ -51,10 +53,10 @@ export const EmailModal: React.FC<EmailModalProps> = ({
   const handleCopyEmail = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(recipientEmail);
+        await navigator.clipboard.writeText(effectiveRecipientEmail);
       } else {
         const input = document.createElement('input');
-        input.value = recipientEmail;
+        input.value = effectiveRecipientEmail;
         document.body.appendChild(input);
         input.select();
         document.execCommand('copy');
@@ -71,17 +73,17 @@ export const EmailModal: React.FC<EmailModalProps> = ({
 
   // Gmail Web Composer URL
   const getGmailUrl = () => {
-    const to = encodeURIComponent(recipientEmail);
+    const to = encodeURIComponent(effectiveRecipientEmail);
     const su = encodeURIComponent(subject || 'Inquiry - Yards Infra Builders');
     const bodyContent = message 
-      ? `Name: ${senderName}\nContact: ${senderContact}\n\nMessage:\n${message}\n\nSent to ${recipientName} (${recipientEmail})`
+      ? `Name: ${senderName}\nContact: ${senderContact}\n\nMessage:\n${message}\n\nSent to ${recipientName} (${effectiveRecipientEmail})`
       : `Hello ${recipientName},\n\nI would like to inquire about your construction and infrastructure services.\n\nWarm regards,\n${senderName || 'Client'}\n${senderContact}`;
     return `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${encodeURIComponent(bodyContent)}`;
   };
 
   // Outlook Web Composer URL
   const getOutlookUrl = () => {
-    const to = encodeURIComponent(recipientEmail);
+    const to = encodeURIComponent(effectiveRecipientEmail);
     const su = encodeURIComponent(subject || 'Inquiry - Yards Infra Builders');
     const bodyContent = message 
       ? `Name: ${senderName}\nContact: ${senderContact}\n\nMessage:\n${message}`
@@ -91,7 +93,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
 
   // Standard mailto URL
   const getMailtoUrl = () => {
-    const to = recipientEmail;
+    const to = effectiveRecipientEmail;
     const su = encodeURIComponent(subject || 'Inquiry - Yards Infra Builders');
     const bodyContent = message 
       ? `Name: ${senderName}\nContact: ${senderContact}\n\nMessage:\n${message}`
@@ -171,7 +173,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
                 Official Email Address
               </span>
               <span className="text-sm sm:text-base font-bold text-[#c5a059] font-mono select-all truncate block mt-0.5">
-                {recipientEmail}
+                {effectiveRecipientEmail}
               </span>
             </div>
             <button
@@ -324,7 +326,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
               <div className="flex items-center justify-between pt-1">
                 <span className="text-[10px] text-[#718195] flex items-center gap-1">
                   <Building className="w-3 h-3 text-[#c5a059]" />
-                  Direct to {COMPANY_INFO.shortName} Senior Leadership
+                  Direct to {companyInfo.shortName} Senior Leadership
                 </span>
                 <button
                   type="submit"
@@ -342,11 +344,11 @@ export const EmailModal: React.FC<EmailModalProps> = ({
           <div className="pt-2 text-center text-xs text-[#718195] border-t border-[#18202d] flex items-center justify-center gap-2">
             <span>Need urgent technical assistance? Call:</span>
             <a 
-              href={`tel:${COMPANY_INFO.phone.replace(/[^0-9+]/g, '')}`} 
+              href={`tel:${companyInfo.phone.replace(/[^0-9+]/g, '')}`} 
               className="text-[#c5a059] hover:underline font-semibold flex items-center gap-1"
             >
               <Phone className="w-3 h-3" />
-              <span>{COMPANY_INFO.phone}</span>
+              <span>{companyInfo.phone}</span>
             </a>
           </div>
         </div>

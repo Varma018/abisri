@@ -57,10 +57,18 @@ CREATE TABLE IF NOT EXISTS public.team_members (
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- 4. COMPANY SETTINGS TABLE (Official contact details, phone, email, addresses, working hours)
+CREATE TABLE IF NOT EXISTS public.company_settings (
+  id TEXT PRIMARY KEY DEFAULT 'primary',
+  settings JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- Enable Row Level Security (RLS) on all tables
 ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.company_settings ENABLE ROW LEVEL SECURITY;
 
 -- ------------------------------------------------------------------------------
 -- RLS POLICIES FOR INQUIRIES
@@ -127,6 +135,24 @@ CREATE POLICY "Allow public select for team members"
 DROP POLICY IF EXISTS "Allow upsert for team members" ON public.team_members;
 CREATE POLICY "Allow upsert for team members" 
   ON public.team_members 
+  FOR ALL 
+  TO anon, authenticated 
+  USING (true)
+  WITH CHECK (true);
+
+-- ------------------------------------------------------------------------------
+-- RLS POLICIES FOR COMPANY SETTINGS (Contact details & phone/email updates)
+-- ------------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Allow public select for company_settings" ON public.company_settings;
+CREATE POLICY "Allow public select for company_settings" 
+  ON public.company_settings 
+  FOR SELECT 
+  TO anon, authenticated 
+  USING (true);
+
+DROP POLICY IF EXISTS "Allow upsert for company_settings" ON public.company_settings;
+CREATE POLICY "Allow upsert for company_settings" 
+  ON public.company_settings 
   FOR ALL 
   TO anon, authenticated 
   USING (true)

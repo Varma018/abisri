@@ -25,6 +25,7 @@ import {
   syncLocalDataToSupabase 
 } from '../services/supabaseService';
 import { ProjectItem, TeamMember, InquiryItem } from '../types';
+import { useCompanyInfo } from '../context/CompanyContext';
 
 interface AdminDatabaseTabProps {
   projects: ProjectItem[];
@@ -41,6 +42,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({
   onRefreshData,
   showToast,
 }) => {
+  const { companyInfo } = useCompanyInfo();
   const [url, setUrl] = useState('');
   const [anonKey, setAnonKey] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
@@ -103,7 +105,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({
 
     setIsSyncing(true);
     try {
-      const res = await syncLocalDataToSupabase(projects, teamMembers, inquiries);
+      const res = await syncLocalDataToSupabase(projects, teamMembers, inquiries, companyInfo);
       if (res.success) {
         showToast(res.message);
         setTestResult({ ok: true, message: res.message });
@@ -175,10 +177,18 @@ CREATE TABLE IF NOT EXISTS public.team_members (
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- 4. COMPANY SETTINGS TABLE (Official contact details, phone, email, addresses, working hours)
+CREATE TABLE IF NOT EXISTS public.company_settings (
+  id TEXT PRIMARY KEY DEFAULT 'primary',
+  settings JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- Enable Row Level Security (RLS) on all tables
 ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.company_settings ENABLE ROW LEVEL SECURITY;
 
 -- Allow public visitor submissions for inquiries
 DROP POLICY IF EXISTS "Allow public inserts for inquiries" ON public.inquiries;
@@ -214,6 +224,15 @@ CREATE POLICY "Allow public select for team members"
 DROP POLICY IF EXISTS "Allow upsert for team members" ON public.team_members;
 CREATE POLICY "Allow upsert for team members" 
   ON public.team_members FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+-- Allow public read & management for company contact settings
+DROP POLICY IF EXISTS "Allow public select for company_settings" ON public.company_settings;
+CREATE POLICY "Allow public select for company_settings" 
+  ON public.company_settings FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow upsert for company_settings" ON public.company_settings;
+CREATE POLICY "Allow upsert for company_settings" 
+  ON public.company_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
 -- Indexes for optimal lookup performance
 CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON public.inquiries (created_at DESC);

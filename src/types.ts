@@ -120,3 +120,28 @@ export interface TeamMember {
 }
 
 export type NavView = 'home' | 'about' | 'services' | 'projects' | 'why-us' | 'contact' | 'admin';
+
+export interface CompanyInfo {
+  name: string;
+  shortName: string;
+  monogram: string;
+  tagline: string;
+  subTagline: string;
+  motto: string;
+  peopleMotto: string;
+  quote: string;
+  whyChooseQuote: string;
+  aboutTitle: string;
+  aboutDescription: string;
+  phone: string;
+  phoneAlt: string;
+  email: string;
+  emailProjects: string;
+  address: string;
+  regionalOffice: string;
+  workingHours: string;
+  reraReg: string;
+  whatsappNumber: string;
+  whatsappMessage: string;
+}
+

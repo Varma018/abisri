@@ -14,9 +14,9 @@ import {
   Layers,
   Check
 } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
 import { TeamMember } from '../types';
 import { YIBLogo } from './YIBLogo';
+import { useCompanyInfo } from '../context/CompanyContext';
 
 const SHOWCASE_TABS = [
   {
@@ -61,6 +61,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
   onOpenAdmin,
   onOpenEmail,
 }) => {
+  const { companyInfo } = useCompanyInfo();
   const [activeShowcase, setActiveShowcase] = useState(0);
   const currentView = SHOWCASE_TABS[activeShowcase];
   return (
@@ -300,12 +301,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                   <div className="pt-3 flex items-center justify-between text-[11px] text-gray-500">
                     <span className="flex items-center gap-1.5 hover:text-[#E31B23] transition-colors font-medium">
                       <Phone className="w-3 h-3 text-[#E31B23]" />
-                      <span>{member.phone || COMPANY_INFO.phone}</span>
+                      <span>{member.phone || companyInfo.phone}</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => {
-                        const targetEmail = member.email || COMPANY_INFO.email;
+                        const targetEmail = member.email || companyInfo.email;
                         if (onOpenEmail) {
                           onOpenEmail(targetEmail, member.name);
                         } else {
@@ -348,7 +349,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                 <Award className="w-5 h-5" />
               </div>
               <h4 className="text-sm font-bold text-gray-900 font-display">RERA Registered</h4>
-              <p className="text-xs text-gray-600">{COMPANY_INFO.reraReg}</p>
+              <p className="text-xs text-gray-600">{companyInfo.reraReg}</p>
             </div>
 
             <div className="p-5 bg-gray-50 border border-gray-200 rounded space-y-2">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Send, CheckCircle2, Phone, Mail, Calendar, MessageCircle, ExternalLink, Inbox, AlertCircle } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 import { InquiryItem } from '../types';
 import { ImageUploadField } from './ImageUploadField';
 import { 
@@ -26,6 +26,7 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
   prefilledScope,
   onInquirySubmitted,
 }) => {
+  const { companyInfo } = useCompanyInfo();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -160,7 +161,7 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
 
                   {/* WhatsApp */}
                   <a
-                    href={`https://wa.me/${COMPANY_INFO.whatsappNumber}?text=${encodeURIComponent(
+                    href={`https://wa.me/${companyInfo.whatsappNumber}?text=${encodeURIComponent(
                       createdInquiry ? formatWhatsAppMessage(createdInquiry) : 'Project inquiry'
                     )}`}
                     target="_blank"

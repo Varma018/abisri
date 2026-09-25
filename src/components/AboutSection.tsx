@@ -1,12 +1,13 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck, Compass, HardHat, CheckCircle2 } from 'lucide-react';
-import { COMPANY_INFO } from '../data/companyData';
+import { useCompanyInfo } from '../context/CompanyContext';
 
 interface AboutSectionProps {
   onOpenAboutModal: () => void;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenAboutModal }) => {
+  const { companyInfo } = useCompanyInfo();
   return (
     <section id="about" className="py-20 sm:py-28 bg-white text-gray-900 relative overflow-hidden border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,7 +78,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenAboutModal }) 
             {/* Content text strictly respecting the prompt */}
             <div className="space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed mb-6">
               <p>
-                {COMPANY_INFO.aboutDescription}
+                {companyInfo.aboutDescription}
               </p>
               <p>
                 From structural steel detailing and precision PEB fabrication to crane erection, laser-screed floor slabs and allied civil infrastructure, we manage each project with dedicated supervision and strict adherence to safety.

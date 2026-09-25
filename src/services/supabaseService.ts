@@ -1,5 +1,5 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
-import { InquiryItem, ProjectItem, TeamMember } from '../types';
+import { InquiryItem, ProjectItem, TeamMember, CompanyInfo } from '../types';
 import { getInquiryDateTime } from '../utils/dateTimeUtils';
 
 // ==========================================
@@ -352,7 +352,8 @@ export async function testSupabaseConnection(): Promise<{ ok: boolean; message: 
 export async function syncLocalDataToSupabase(
   projects: ProjectItem[],
   team: TeamMember[],
-  inquiries: InquiryItem[]
+  inquiries: InquiryItem[],
+  companyInfo?: CompanyInfo
 ): Promise<{ success: boolean; message: string }> {
   const client = getSupabaseClient();
   if (!client) {
@@ -382,9 +383,16 @@ export async function syncLocalDataToSupabase(
       if (ok) syncedInquiries++;
     }
 
+    // Sync Company Settings if companyInfo provided
+    let syncedSettings = false;
+    if (companyInfo) {
+      syncedSettings = await saveCompanyInfoToSupabase(companyInfo);
+    }
+
+    const settingsMsg = syncedSettings ? ' and official contact settings' : '';
     return {
       success: true,
-      message: `Synced ${syncedProjects} projects, ${syncedTeam} team members, and ${syncedInquiries} inquiries to Supabase!`,
+      message: `Synced ${syncedProjects} projects, ${syncedTeam} team members, ${syncedInquiries} inquiries${settingsMsg} to Supabase!`,
     };
   } catch (err: any) {
     return {
@@ -393,3 +401,55 @@ export async function syncLocalDataToSupabase(
     };
   }
 }
+
+// ==========================================
+// COMPANY SETTINGS SERVICE
+// ==========================================
+
+export async function fetchCompanyInfoFromSupabase(): Promise<CompanyInfo | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const { data, error } = await client
+      .from('company_settings')
+      .select('settings')
+      .eq('id', 'primary')
+      .maybeSingle();
+
+    if (error) {
+      return null;
+    }
+
+    if (data && data.settings) {
+      return data.settings as CompanyInfo;
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function saveCompanyInfoToSupabase(info: CompanyInfo): Promise<boolean> {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const { error } = await client
+      .from('company_settings')
+      .upsert(
+        { id: 'primary', settings: info, updated_at: new Date().toISOString() },
+        { onConflict: 'id' }
+      );
+
+    if (error) {
+      console.warn('[Supabase] Failed to save company settings:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[Supabase] Error saving company settings:', err);
+    return false;
+  }
+}
+
