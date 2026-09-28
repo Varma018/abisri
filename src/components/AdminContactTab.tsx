@@ -16,12 +16,15 @@ import {
   CheckCircle2,
   Sparkles,
   Info,
-  UploadCloud
+  UploadCloud,
+  BarChart3
 } from 'lucide-react';
 import { CompanyInfo } from '../types';
+import { calculateCompletedProjectsCount } from '../utils/statsUtils';
 
 interface AdminContactTabProps {
   companyInfo: CompanyInfo;
+  projectsCount?: number;
   onSaveCompanyInfo: (newInfo: CompanyInfo) => Promise<boolean> | void;
   onResetCompanyInfo: () => Promise<boolean> | void;
   showToast: (msg: string) => void;
@@ -30,6 +33,7 @@ interface AdminContactTabProps {
 
 export const AdminContactTab: React.FC<AdminContactTabProps> = ({
   companyInfo,
+  projectsCount = 6,
   onSaveCompanyInfo,
   onResetCompanyInfo,
   showToast,
@@ -396,6 +400,78 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
                 placeholder="TS RERA Reg: P02400004921 | ISO 9001:2015 Certified General Contractor"
                 className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] placeholder-[#627083] focus:outline-none"
               />
+            </div>
+          </div>
+
+          {/* SECTION 5: Homepage Stats & Completed Projects Counter */}
+          <div className="bg-[#121622] border border-[#21293a] p-5 rounded-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1c2434]">
+              <h4 className="font-cinzel text-sm font-bold text-[#f8fafc] flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#E31B23]" />
+                <span>Homepage "Projects Completed" Stat Counter</span>
+              </h4>
+              <span className="text-[11px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                Live Dynamic Sync
+              </span>
+            </div>
+
+            <p className="text-xs text-[#95a3b7] leading-relaxed">
+              Configure how the <strong>Projects Completed</strong> number on the homepage is calculated. Whenever new projects are added in the Admin Portal, this counter automatically increases!
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div className="space-y-1.5">
+                <label className="text-[11px] uppercase tracking-wider font-semibold text-[#8b9bb0] block">
+                  Counting Mode
+                </label>
+                <select
+                  value={formData.completedProjectsMode || 'base_plus_added'}
+                  onChange={(e) => handleChange('completedProjectsMode' as any, e.target.value)}
+                  className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none cursor-pointer"
+                >
+                  <option value="base_plus_added">
+                    Auto-Increment: Base ({formData.completedProjectsBase || '12'}) + Added Projects
+                  </option>
+                  <option value="portfolio_exact">
+                    Strict Portfolio Count: Exact projects in database ({projectsCount})
+                  </option>
+                  <option value="custom_fixed">
+                    Fixed Custom Number
+                  </option>
+                </select>
+                <p className="text-[10px] text-[#6b7b90]">
+                  Recommended: "Auto-Increment" increases dynamically as you add projects.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] uppercase tracking-wider font-semibold text-[#8b9bb0] block">
+                  Baseline Completed Projects Count
+                </label>
+                <input
+                  type="text"
+                  value={formData.completedProjectsBase || '12'}
+                  onChange={(e) => handleChange('completedProjectsBase' as any, e.target.value)}
+                  placeholder="12"
+                  disabled={formData.completedProjectsMode === 'portfolio_exact'}
+                  className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] placeholder-[#627083] focus:outline-none disabled:opacity-50"
+                />
+                <p className="text-[10px] text-[#6b7b90]">
+                  Original starting count of completed contracts/projects.
+                </p>
+              </div>
+            </div>
+
+            {/* Live Counter Preview Pill */}
+            <div className="p-3 bg-[#17202f] border border-[#253245] rounded-sm flex items-center justify-between">
+              <span className="text-xs text-[#c4cbd8]">
+                Display on Homepage Stats Card:
+              </span>
+              <div className="flex items-center gap-1.5 font-bold font-display text-white">
+                <span className="text-base text-white font-mono">{calculateCompletedProjectsCount(projectsCount, formData)}</span>
+                <span className="w-2 h-2 rounded-full bg-[#E31B23]" />
+                <span className="text-xs text-[#c5a059] uppercase tracking-wider ml-1">Projects Completed</span>
+              </div>
             </div>
           </div>
 

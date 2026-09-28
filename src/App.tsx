@@ -353,7 +353,7 @@ export default function App() {
             <HeroSection />
 
             {/* Engineering Stats */}
-            <StatsSection />
+            <StatsSection projectsCount={projects.length} />
 
             {/* Curated Project Spotlight Preview */}
             <section className="py-20 bg-gray-50 border-t border-b border-gray-200">

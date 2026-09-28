@@ -22,6 +22,8 @@ export const COMPANY_INFO: CompanyInfo = {
   reraReg: 'TS RERA Reg: P02400004921 | ISO 9001:2015 Certified General Contractor',
   whatsappNumber: '918688744795',
   whatsappMessage: 'Hello Yards Infra and Builders LLP, I am interested in your industrial construction services. I would like to discuss my project.',
+  completedProjectsBase: '12',
+  completedProjectsMode: 'base_plus_added',
 };
 
 export const STATS_DATA: StatItem[] = [

@@ -143,5 +143,7 @@ export interface CompanyInfo {
   reraReg: string;
   whatsappNumber: string;
   whatsappMessage: string;
+  completedProjectsBase?: string; // Baseline completed projects (defaults to 12)
+  completedProjectsMode?: 'base_plus_added' | 'portfolio_exact' | 'custom_fixed'; // Counting mode
 }
 

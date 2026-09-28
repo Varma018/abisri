@@ -26,7 +26,8 @@ import {
   Database,
   Eye,
   EyeOff,
-  PhoneCall
+  PhoneCall,
+  BarChart3
 } from 'lucide-react';
 import { ProjectItem, TeamMember, InquiryItem } from '../types';
 import { COMPANY_INFO } from '../data/companyData';
@@ -36,6 +37,7 @@ import { AdminContactTab } from './AdminContactTab';
 import { ImageUploadField } from './ImageUploadField';
 import { MultipleImageUploadField } from './MultipleImageUploadField';
 import { useCompanyInfo } from '../context/CompanyContext';
+import { calculateCompletedProjectsCount } from '../utils/statsUtils';
 
 interface AdminPortalProps {
   projects: ProjectItem[];
@@ -83,6 +85,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Live Company Contact Details from Context
   const { companyInfo, updateCompanyInfo, resetCompanyInfo, isSaving: isSavingCompanyInfo } = useCompanyInfo();
+
+  // Dynamic completed projects counter displayed on the homepage stats
+  const liveCompletedProjects = calculateCompletedProjectsCount(projects.length, companyInfo);
 
   // Active Admin Section
   const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
@@ -615,6 +620,38 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </button>
             </div>
 
+            {/* Live Homepage Stats Synchronizer Banner */}
+            <div className="bg-[#121824] border border-[#232f42] rounded-sm p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-sm bg-[#E31B23]/15 border border-[#E31B23]/30 flex items-center justify-center text-[#E31B23] shrink-0 font-bold font-display text-base">
+                  {liveCompletedProjects}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                      Homepage "Projects Completed" Counter: <span className="text-[#c5a059] font-mono text-sm">{liveCompletedProjects}</span>
+                    </h4>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold border border-emerald-500/30 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Auto-Increases With Projects
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#9fb0c3] mt-0.5">
+                    Portfolio currently has <strong>{projects.length}</strong> showcase projects. Whenever you add new projects, the homepage completed counter automatically increases.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setAdminTab('contact')}
+                className="px-3 py-1.5 rounded-sm bg-[#1b2332] hover:bg-[#253043] border border-[#2d3a4e] text-[#c4cbd8] hover:text-white text-xs font-semibold shrink-0 cursor-pointer flex items-center gap-1.5 transition-colors"
+                title="Configure baseline or calculation mode"
+              >
+                <span>Adjust Counter / Mode</span>
+              </button>
+            </div>
+
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((proj) => (
@@ -791,6 +828,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {adminTab === 'contact' && (
           <AdminContactTab
             companyInfo={companyInfo}
+            projectsCount={projects.length}
             onSaveCompanyInfo={updateCompanyInfo}
             onResetCompanyInfo={resetCompanyInfo}
             showToast={showToast}
