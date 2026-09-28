@@ -83,20 +83,22 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="pt-2 flex items-center gap-3">
               <a
                 id="social-instagram"
-                href="https://instagram.com"
+                href={companyInfo.instagramUrl || 'https://www.instagram.com/yards_infra?stkn=MTNienliczBwdndmeA=='}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Follow Yards Infra and Builders on Instagram"
+                aria-label="Follow Yards Infra and Builders on Instagram (@yards_infra)"
+                title="Follow @yards_infra on Instagram"
                 className="w-9 h-9 rounded bg-gray-800/80 border border-gray-700 hover:border-[#E31B23] hover:bg-[#E31B23] hover:text-white text-gray-300 flex items-center justify-center transition-colors"
               >
                 <Instagram className="w-4 h-4" />
               </a>
               <a
                 id="social-linkedin"
-                href="https://linkedin.com"
+                href={companyInfo.linkedinUrl || 'https://www.linkedin.com/company/yards-infra'}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow Yards Infra and Builders on LinkedIn"
+                title="Follow Yards Infra on LinkedIn"
                 className="w-9 h-9 rounded bg-gray-800/80 border border-gray-700 hover:border-[#E31B23] hover:bg-[#E31B23] hover:text-white text-gray-300 flex items-center justify-center transition-colors"
               >
                 <Linkedin className="w-4 h-4" />

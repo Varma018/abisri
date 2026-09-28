@@ -17,7 +17,9 @@ import {
   Sparkles,
   Info,
   UploadCloud,
-  BarChart3
+  BarChart3,
+  Instagram,
+  Linkedin
 } from 'lucide-react';
 import { CompanyInfo } from '../types';
 import { calculateCompletedProjectsCount } from '../utils/statsUtils';
@@ -400,6 +402,79 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
                 placeholder="TS RERA Reg: P02400004921 | ISO 9001:2015 Certified General Contractor"
                 className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] placeholder-[#627083] focus:outline-none"
               />
+            </div>
+          </div>
+
+          {/* SECTION: Social Media & Digital Channels */}
+          <div className="bg-[#121622] border border-[#21293a] p-5 rounded-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1c2434]">
+              <h4 className="font-cinzel text-sm font-bold text-[#f8fafc] flex items-center gap-2">
+                <Instagram className="w-4 h-4 text-[#E31B23]" />
+                <span>Social Media & Digital Presence</span>
+              </h4>
+              <span className="text-[11px] text-[#718094]">Connected to Footer & Contact channels</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] uppercase tracking-wider font-semibold text-[#8b9bb0] flex items-center gap-1.5">
+                    <Instagram className="w-3.5 h-3.5 text-pink-500" />
+                    <span>Instagram Profile URL</span>
+                  </label>
+                  {formData.instagramUrl && (
+                    <a
+                      href={formData.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-[#c5a059] hover:underline flex items-center gap-1"
+                    >
+                      <span>Test Link</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  value={formData.instagramUrl || ''}
+                  onChange={(e) => handleChange('instagramUrl', e.target.value)}
+                  placeholder="https://www.instagram.com/yards_infra?stkn=MTNienliczBwdndmeA=="
+                  className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] placeholder-[#627083] focus:outline-none"
+                />
+                <p className="text-[10px] text-[#6b7b90]">
+                  Official Instagram handle (e.g. <code>@yards_infra</code>). Opens in new tab from the footer and contact sections.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] uppercase tracking-wider font-semibold text-[#8b9bb0] flex items-center gap-1.5">
+                    <Linkedin className="w-3.5 h-3.5 text-sky-400" />
+                    <span>LinkedIn Company Page URL</span>
+                  </label>
+                  {formData.linkedinUrl && (
+                    <a
+                      href={formData.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-[#c5a059] hover:underline flex items-center gap-1"
+                    >
+                      <span>Test Link</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  value={formData.linkedinUrl || ''}
+                  onChange={(e) => handleChange('linkedinUrl', e.target.value)}
+                  placeholder="https://www.linkedin.com/company/yards-infra"
+                  className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] placeholder-[#627083] focus:outline-none"
+                />
+                <p className="text-[10px] text-[#6b7b90]">
+                  Corporate LinkedIn profile for recruiting, partnerships, and executive credibility.
+                </p>
+              </div>
             </div>
           </div>
 

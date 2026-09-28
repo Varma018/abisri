@@ -13,7 +13,8 @@ import {
   Copy,
   Check,
   ExternalLink,
-  Inbox
+  Inbox,
+  Instagram
 } from 'lucide-react';
 import { ContactFormData, InquiryItem } from '../types';
 import { ImageUploadField } from './ImageUploadField';
@@ -328,6 +329,31 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                     <p className="text-xs text-gray-500 mt-0.5">
                       Site audits and emergency structural inspections available by prior appointment.
                     </p>
+                  </div>
+                </div>
+
+                {/* Official Instagram */}
+                <div className="flex items-start gap-4 pt-4 border-t border-gray-100">
+                  <div className="w-10 h-10 rounded bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-sm">
+                    <Instagram className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wider text-gray-500 font-bold mb-1">
+                      Official Instagram
+                    </h4>
+                    <a
+                      id="contact-instagram-link"
+                      href={companyInfo.instagramUrl || 'https://www.instagram.com/yards_infra?stkn=MTNienliczBwdndmeA=='}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-gray-900 hover:text-[#E31B23] font-bold text-sm transition-colors group"
+                    >
+                      <span>@yards_infra</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#E31B23] transition-colors" />
+                    </a>
+                    <span className="block text-gray-500 text-xs mt-0.5">
+                      Live project erection reels, on-site progress videos & structural updates.
+                    </span>
                   </div>
                 </div>
 

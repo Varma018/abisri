@@ -13,17 +13,18 @@ export function calculateCompletedProjectsCount(
   companyInfo?: Partial<CompanyInfo>
 ): string {
   const mode = companyInfo?.completedProjectsMode || 'base_plus_added';
-  const customBase = companyInfo?.completedProjectsBase;
+  const customBase = companyInfo?.completedProjectsBase?.trim() || '12';
+  const hasPlus = customBase.includes('+');
 
   if (mode === 'portfolio_exact') {
     return `${projectsCount}`;
   }
 
-  const baseNum = customBase ? parseInt(customBase.replace(/[^0-9]/g, ''), 10) : 12;
+  const baseNum = parseInt(customBase.replace(/[^0-9]/g, ''), 10);
   const validBase = isNaN(baseNum) ? 12 : baseNum;
 
   if (mode === 'custom_fixed') {
-    return `${validBase}`;
+    return hasPlus ? `${validBase}+` : `${validBase}`;
   }
 
   // mode === 'base_plus_added' (default)
@@ -32,5 +33,5 @@ export function calculateCompletedProjectsCount(
   const addedProjects = Math.max(0, projectsCount - initialShowcaseCount);
   const total = validBase + addedProjects;
 
-  return `${total}`;
+  return hasPlus ? `${total}+` : `${total}`;
 }

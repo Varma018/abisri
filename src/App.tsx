@@ -237,7 +237,7 @@ export default function App() {
 
     try {
       const channel = client
-        .channel('yib_inquiries_realtime')
+        .channel('yib_live_data_realtime')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'inquiries' },
@@ -246,6 +246,32 @@ export default function App() {
             if (updated) {
               setInquiries(updated);
               saveStoredInquiries(updated);
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'projects' },
+          async () => {
+            const updated = await fetchProjectsFromSupabase();
+            if (updated && updated.length > 0) {
+              setProjects(updated);
+              try {
+                localStorage.setItem('yards_infra_projects', JSON.stringify(updated));
+              } catch (e) {}
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'team_members' },
+          async () => {
+            const updated = await fetchTeamFromSupabase();
+            if (updated && updated.length > 0) {
+              setTeamMembers(updated);
+              try {
+                localStorage.setItem('yards_infra_team', JSON.stringify(updated));
+              } catch (e) {}
             }
           }
         )
