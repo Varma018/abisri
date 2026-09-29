@@ -24,13 +24,14 @@ import {
   testSupabaseConnection, 
   syncLocalDataToSupabase 
 } from '../services/supabaseService';
-import { ProjectItem, TeamMember, InquiryItem } from '../types';
+import { ProjectItem, TeamMember, InquiryItem, GalleryItem } from '../types';
 import { useCompanyInfo } from '../context/CompanyContext';
 
 interface AdminDatabaseTabProps {
   projects: ProjectItem[];
   teamMembers: TeamMember[];
   inquiries: InquiryItem[];
+  galleryItems?: GalleryItem[];
   onRefreshData?: () => void;
   showToast: (msg: string) => void;
 }
@@ -39,6 +40,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({
   projects,
   teamMembers,
   inquiries,
+  galleryItems = [],
   onRefreshData,
   showToast,
 }) => {
@@ -105,7 +107,7 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({
 
     setIsSyncing(true);
     try {
-      const res = await syncLocalDataToSupabase(projects, teamMembers, inquiries, companyInfo);
+      const res = await syncLocalDataToSupabase(projects, teamMembers, inquiries, companyInfo, galleryItems);
       if (res.success) {
         showToast(res.message);
         setTestResult({ ok: true, message: res.message });
@@ -177,7 +179,20 @@ CREATE TABLE IF NOT EXISTS public.team_members (
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 4. COMPANY SETTINGS TABLE (Official contact details, phone, email, addresses, working hours)
+-- 4. GALLERY TABLE (On-site photo documentation, PEB erections, sheeting, warehousing)
+CREATE TABLE IF NOT EXISTS public.gallery (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  description TEXT,
+  location TEXT,
+  date TEXT,
+  featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 5. COMPANY SETTINGS TABLE (Official contact details, phone, email, addresses, working hours)
 CREATE TABLE IF NOT EXISTS public.company_settings (
   id TEXT PRIMARY KEY DEFAULT 'primary',
   settings JSONB NOT NULL,
@@ -188,6 +203,7 @@ CREATE TABLE IF NOT EXISTS public.company_settings (
 ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.gallery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.company_settings ENABLE ROW LEVEL SECURITY;
 
 -- Allow public visitor submissions for inquiries
@@ -225,6 +241,19 @@ DROP POLICY IF EXISTS "Allow upsert for team members" ON public.team_members;
 CREATE POLICY "Allow upsert for team members" 
   ON public.team_members FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+-- Allow public read & management for gallery photos
+DROP POLICY IF EXISTS "Allow public select for gallery" ON public.gallery;
+CREATE POLICY "Allow public select for gallery" 
+  ON public.gallery FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow upsert for gallery" ON public.gallery;
+CREATE POLICY "Allow upsert for gallery" 
+  ON public.gallery FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow delete for gallery" ON public.gallery;
+CREATE POLICY "Allow delete for gallery" 
+  ON public.gallery FOR DELETE TO anon, authenticated USING (true);
+
 -- Allow public read & management for company contact settings
 DROP POLICY IF EXISTS "Allow public select for company_settings" ON public.company_settings;
 CREATE POLICY "Allow public select for company_settings" 
@@ -237,7 +266,9 @@ CREATE POLICY "Allow upsert for company_settings"
 -- Indexes for optimal lookup performance
 CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON public.inquiries (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inquiries_status ON public.inquiries (status);
-CREATE INDEX IF NOT EXISTS idx_projects_category ON public.projects (category);`;
+CREATE INDEX IF NOT EXISTS idx_projects_category ON public.projects (category);
+CREATE INDEX IF NOT EXISTS idx_gallery_created_at ON public.gallery (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gallery_category ON public.gallery (category);`;
 
   const handleCopySql = () => {
     navigator.clipboard.writeText(sqlSchemaScript);

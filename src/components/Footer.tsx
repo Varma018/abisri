@@ -35,6 +35,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     { name: 'About Us', view: 'about' },
     { name: 'Services', view: 'services' },
     { name: 'Projects', view: 'projects' },
+    { name: 'Photo Gallery', view: 'gallery' },
     { name: 'Why Choose Us', view: 'why-us' },
     { name: 'Contact', view: 'contact' },
     { name: 'Admin Portal', view: 'admin' },

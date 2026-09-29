@@ -120,7 +120,18 @@ export interface TeamMember {
   image: string;
 }
 
-export type NavView = 'home' | 'about' | 'services' | 'projects' | 'why-us' | 'contact' | 'admin';
+export type NavView = 'home' | 'about' | 'services' | 'projects' | 'gallery' | 'why-us' | 'contact' | 'admin';
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  category: string;
+  imageUrl: string;
+  description?: string;
+  location?: string;
+  date?: string;
+  featured?: boolean;
+}
 
 export interface CompanyInfo {
   name: string;

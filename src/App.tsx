@@ -20,19 +20,24 @@ import { AboutModal } from './components/AboutModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { EmailModal } from './components/EmailModal';
 import { AdminPortal } from './components/AdminPortal';
-import { ProjectItem, ServiceItem, TeamMember, NavView, InquiryItem } from './types';
+import { GallerySection } from './components/GallerySection';
+import { ProjectItem, ServiceItem, TeamMember, NavView, InquiryItem, GalleryItem } from './types';
 import { PROJECTS_DATA, INITIAL_TEAM_MEMBERS } from './data/companyData';
 import { useCompanyInfo } from './context/CompanyContext';
 import { getStoredInquiries, saveStoredInquiries, addStoredInquiry } from './utils/inquiryStorage';
+import { getStoredGallery, saveStoredGallery } from './utils/galleryStorage';
 import { isSupabaseConfigured, getSupabaseClient } from './lib/supabase';
 import { 
   fetchInquiriesFromSupabase, 
   fetchProjectsFromSupabase, 
   fetchTeamFromSupabase,
+  fetchGalleryFromSupabase,
   saveProjectToSupabase,
   deleteProjectFromSupabase,
   saveTeamMemberToSupabase,
   deleteTeamMemberFromSupabase,
+  saveGalleryItemToSupabase,
+  deleteGalleryItemFromSupabase,
   updateInquiryStatusInSupabase,
   deleteInquiryFromSupabase
 } from './services/supabaseService';
@@ -116,6 +121,11 @@ export default function App() {
     return getStoredInquiries();
   });
 
+  // Gallery Photos State with LocalStorage persistence
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(() => {
+    return getStoredGallery();
+  });
+
   const unreadInquiriesCount = inquiries.filter((i) => i.status === 'New').length;
 
   // Sync projects to localStorage
@@ -128,6 +138,12 @@ export default function App() {
     }
   };
 
+  // Sync gallery to localStorage
+  const saveGallery = (newGallery: GalleryItem[]) => {
+    setGalleryItems(newGallery);
+    saveStoredGallery(newGallery);
+  };
+
   // Sync team members to localStorage
   const saveTeamMembers = (newTeam: TeamMember[]) => {
     setTeamMembers(newTeam);
@@ -136,6 +152,25 @@ export default function App() {
     } catch (e) {
       console.error('Failed to persist team to localStorage', e);
     }
+  };
+
+  // Gallery Handlers
+  const handleAddGalleryItem = (newItem: GalleryItem) => {
+    const updated = [newItem, ...galleryItems];
+    saveGallery(updated);
+    saveGalleryItemToSupabase(newItem).catch((err) => console.warn('[Supabase] Gallery save error:', err));
+  };
+
+  const handleUpdateGalleryItem = (updatedItem: GalleryItem) => {
+    const updated = galleryItems.map(item => item.id === updatedItem.id ? updatedItem : item);
+    saveGallery(updated);
+    saveGalleryItemToSupabase(updatedItem).catch((err) => console.warn('[Supabase] Gallery update error:', err));
+  };
+
+  const handleDeleteGalleryItem = (id: string) => {
+    const updated = galleryItems.filter(item => item.id !== id);
+    saveGallery(updated);
+    deleteGalleryItemFromSupabase(id).catch((err) => console.warn('[Supabase] Gallery delete error:', err));
   };
 
   // CRUD Handlers for Admin
@@ -199,10 +234,11 @@ export default function App() {
   const refreshFromSupabase = async () => {
     if (!isSupabaseConfigured()) return;
     try {
-      const [remoteInquiries, remoteProjects, remoteTeam] = await Promise.all([
+      const [remoteInquiries, remoteProjects, remoteTeam, remoteGallery] = await Promise.all([
         fetchInquiriesFromSupabase(),
         fetchProjectsFromSupabase(),
         fetchTeamFromSupabase(),
+        fetchGalleryFromSupabase(),
       ]);
 
       if (remoteInquiries && remoteInquiries.length > 0) {
@@ -222,6 +258,11 @@ export default function App() {
         try {
           localStorage.setItem('yards_infra_team', JSON.stringify(remoteTeam));
         } catch (e) {}
+      }
+
+      if (remoteGallery && remoteGallery.length > 0) {
+        setGalleryItems(remoteGallery);
+        saveStoredGallery(remoteGallery);
       }
     } catch (err) {
       console.warn('[Supabase] Refresh error:', err);
@@ -272,6 +313,17 @@ export default function App() {
               try {
                 localStorage.setItem('yards_infra_team', JSON.stringify(updated));
               } catch (e) {}
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'gallery' },
+          async () => {
+            const updated = await fetchGalleryFromSupabase();
+            if (updated && updated.length > 0) {
+              setGalleryItems(updated);
+              saveStoredGallery(updated);
             }
           }
         )
@@ -343,12 +395,16 @@ export default function App() {
         projects={projects}
         teamMembers={teamMembers}
         inquiries={inquiries}
+        galleryItems={galleryItems}
         onAddProject={handleAddProject}
         onUpdateProject={handleUpdateProject}
         onDeleteProject={handleDeleteProject}
         onAddTeamMember={handleAddTeamMember}
         onUpdateTeamMember={handleUpdateTeamMember}
         onDeleteTeamMember={handleDeleteTeamMember}
+        onAddGalleryItem={handleAddGalleryItem}
+        onUpdateGalleryItem={handleUpdateGalleryItem}
+        onDeleteGalleryItem={handleDeleteGalleryItem}
         onUpdateInquiryStatus={handleUpdateInquiryStatus}
         onDeleteInquiry={handleDeleteInquiry}
         onAddInquiry={handleAddInquiry}
@@ -456,6 +512,70 @@ export default function App() {
             {/* Safety in PEB Section */}
             <SafetyInPEBSection />
 
+            {/* On-Site Construction Gallery Preview */}
+            <section className="py-20 bg-white border-t border-b border-gray-200">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                  <div>
+                    <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E31B23] mb-2">
+                      <span className="w-5 h-[2px] bg-[#E31B23]" />
+                      <span>On-Site Visuals</span>
+                    </div>
+                    <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-950 font-display">
+                      Construction &amp; Project Gallery
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => navigateTo('gallery')}
+                    className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[#E31B23] hover:text-[#C7141B] transition-colors cursor-pointer"
+                  >
+                    <span>View All {galleryItems.length} Site Photos</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {galleryItems.slice(0, 4).map((photo) => (
+                    <div
+                      key={photo.id}
+                      onClick={() => navigateTo('gallery')}
+                      className="bg-gray-950 rounded-lg overflow-hidden border border-gray-200 group hover:border-[#E31B23] transition-all cursor-pointer shadow-sm"
+                    >
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={photo.imageUrl}
+                          alt={photo.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-70" />
+                        <div className="absolute top-2.5 left-2.5">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-black/60 text-[#E31B23] backdrop-blur-xs border border-white/10">
+                            {photo.category}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
+                          <p className="text-xs font-bold font-display line-clamp-1 group-hover:text-red-300 transition-colors">
+                            {photo.title}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => navigateTo('gallery')}
+                    className="px-6 py-2.5 rounded bg-gray-900 hover:bg-[#E31B23] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs inline-flex items-center gap-2"
+                  >
+                    <span>Explore Full Construction Gallery</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </section>
+
             {/* Client Testimonials */}
             <TestimonialsSection />
 
@@ -494,6 +614,16 @@ export default function App() {
             projects={projects}
             onSelectProject={(project) => setSelectedProject(project)}
             onOpenAdmin={() => navigateTo('admin')}
+          />
+        )}
+
+        {/* VIEW: GALLERY (Only shown when Gallery is clicked) */}
+        {currentView === 'gallery' && (
+          <GallerySection
+            galleryItems={galleryItems}
+            isStandalonePage={true}
+            onOpenAdmin={() => navigateTo('admin')}
+            onOpenConsultation={() => handleOpenConsultation()}
           />
         )}
 

@@ -38,6 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { label: 'About Us', view: 'about' },
     { label: 'Services', view: 'services' },
     { label: 'Projects', view: 'projects' },
+    { label: 'Gallery', view: 'gallery' },
     { label: 'Why Choose Us', view: 'why-us' },
     { label: 'Contact', view: 'contact' },
   ];

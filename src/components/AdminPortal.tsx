@@ -31,11 +31,12 @@ import {
   Sliders,
   CheckCircle2
 } from 'lucide-react';
-import { ProjectItem, TeamMember, InquiryItem } from '../types';
+import { ProjectItem, TeamMember, InquiryItem, GalleryItem } from '../types';
 import { COMPANY_INFO } from '../data/companyData';
 import { AdminInquiriesTab } from './AdminInquiriesTab';
 import { AdminDatabaseTab } from './AdminDatabaseTab';
 import { AdminContactTab } from './AdminContactTab';
+import { AdminGalleryTab } from './AdminGalleryTab';
 import { ImageUploadField } from './ImageUploadField';
 import { MultipleImageUploadField } from './MultipleImageUploadField';
 import { useCompanyInfo } from '../context/CompanyContext';
@@ -45,13 +46,17 @@ interface AdminPortalProps {
   projects: ProjectItem[];
   teamMembers: TeamMember[];
   inquiries: InquiryItem[];
-  initialTab?: 'projects' | 'team' | 'inquiries' | 'contact' | 'database' | 'info';
+  galleryItems?: GalleryItem[];
+  initialTab?: 'projects' | 'gallery' | 'team' | 'inquiries' | 'contact' | 'database' | 'info';
   onAddProject: (project: ProjectItem) => void;
   onUpdateProject: (project: ProjectItem) => void;
   onDeleteProject: (projectId: string) => void;
   onAddTeamMember: (member: TeamMember) => void;
   onUpdateTeamMember: (member: TeamMember) => void;
   onDeleteTeamMember: (memberId: string) => void;
+  onAddGalleryItem?: (item: GalleryItem) => void;
+  onUpdateGalleryItem?: (item: GalleryItem) => void;
+  onDeleteGalleryItem?: (id: string) => void;
   onUpdateInquiryStatus: (id: string, status: InquiryItem['status']) => void;
   onDeleteInquiry: (id: string) => void;
   onAddInquiry: (inquiry: InquiryItem) => void;
@@ -64,6 +69,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   projects,
   teamMembers,
   inquiries,
+  galleryItems = [],
   initialTab = 'projects',
   onAddProject,
   onUpdateProject,
@@ -71,6 +77,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onAddTeamMember,
   onUpdateTeamMember,
   onDeleteTeamMember,
+  onAddGalleryItem,
+  onUpdateGalleryItem,
+  onDeleteGalleryItem,
   onUpdateInquiryStatus,
   onDeleteInquiry,
   onAddInquiry,
@@ -137,7 +146,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   // Active Admin Section
-  const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
+  const [adminTab, setAdminTab] = useState<'projects' | 'gallery' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
   const [notification, setNotification] = useState<string | null>(null);
 
   // Project Form State
@@ -534,6 +543,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
 
             <button
+              id="admin-gallery-tab-btn"
+              onClick={() => setAdminTab('gallery')}
+              className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
+                adminTab === 'gallery'
+                  ? 'bg-[#c5a059] text-[#0e1117] shadow-md shadow-[#c5a059]/20 font-bold'
+                  : 'bg-[#131924] text-[#9ca3af] hover:text-[#f8fafc] border border-[#232c3d]'
+              }`}
+            >
+              <Camera className="w-4 h-4" />
+              <span>Gallery ({galleryItems.length})</span>
+            </button>
+
+            <button
               onClick={() => setAdminTab('team')}
               className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
                 adminTab === 'team'
@@ -906,6 +928,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
         )}
 
+        {/* TAB: GALLERY PHOTOS MANAGEMENT */}
+        {adminTab === 'gallery' && (
+          <AdminGalleryTab
+            galleryItems={galleryItems}
+            onAddGalleryItem={onAddGalleryItem || (() => {})}
+            onUpdateGalleryItem={onUpdateGalleryItem || (() => {})}
+            onDeleteGalleryItem={onDeleteGalleryItem || (() => {})}
+            showToast={showToast}
+          />
+        )}
+
         {/* TAB 3: INQUIRIES & LEADS MANAGEMENT */}
         {adminTab === 'inquiries' && (
           <AdminInquiriesTab
@@ -935,6 +968,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             projects={projects}
             teamMembers={teamMembers}
             inquiries={inquiries}
+            galleryItems={galleryItems}
             onRefreshData={onRefreshData}
             showToast={showToast}
           />

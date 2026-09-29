@@ -1,5 +1,5 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
-import { InquiryItem, ProjectItem, TeamMember, CompanyInfo } from '../types';
+import { InquiryItem, ProjectItem, TeamMember, CompanyInfo, GalleryItem } from '../types';
 import { getInquiryDateTime } from '../utils/dateTimeUtils';
 
 // ==========================================
@@ -321,6 +321,95 @@ export async function deleteTeamMemberFromSupabase(id: string): Promise<boolean>
 }
 
 // ==========================================
+// GALLERY PHOTOS SERVICE
+// ==========================================
+
+export async function fetchGalleryFromSupabase(): Promise<GalleryItem[] | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const { data, error } = await client
+      .from('gallery')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[Supabase] Failed to fetch gallery photos:', error.message);
+      return null;
+    }
+
+    if (!data || data.length === 0) return null;
+
+    return data.map((row: any): GalleryItem => ({
+      id: row.id,
+      title: row.title || '',
+      category: row.category || 'PEB Erection',
+      imageUrl: row.image_url || '',
+      description: row.description || '',
+      location: row.location || '',
+      date: row.date || '',
+      featured: !!row.featured,
+    }));
+  } catch (err) {
+    console.error('[Supabase] Error in fetchGalleryFromSupabase:', err);
+    return null;
+  }
+}
+
+export async function saveGalleryItemToSupabase(item: GalleryItem): Promise<boolean> {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const payload = {
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      image_url: item.imageUrl,
+      description: item.description || null,
+      location: item.location || null,
+      date: item.date || null,
+      featured: !!item.featured,
+    };
+
+    const { error } = await client
+      .from('gallery')
+      .upsert(payload, { onConflict: 'id' });
+
+    if (error) {
+      console.warn('[Supabase] Failed to save gallery photo to table:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[Supabase] Error in saveGalleryItemToSupabase:', err);
+    return false;
+  }
+}
+
+export async function deleteGalleryItemFromSupabase(id: string): Promise<boolean> {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const { error } = await client
+      .from('gallery')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.warn('[Supabase] Failed to delete gallery photo from table:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[Supabase] Error in deleteGalleryItemFromSupabase:', err);
+    return false;
+  }
+}
+
+// ==========================================
 // CONNECTION TEST & DATA SYNC
 // ==========================================
 
@@ -355,7 +444,8 @@ export async function syncLocalDataToSupabase(
   projects: ProjectItem[],
   team: TeamMember[],
   inquiries: InquiryItem[],
-  companyInfo?: CompanyInfo
+  companyInfo?: CompanyInfo,
+  gallery?: GalleryItem[]
 ): Promise<{ success: boolean; message: string }> {
   const client = getSupabaseClient();
   if (!client) {
@@ -366,6 +456,7 @@ export async function syncLocalDataToSupabase(
     let syncedProjects = 0;
     let syncedTeam = 0;
     let syncedInquiries = 0;
+    let syncedGallery = 0;
 
     // Sync Projects
     for (const p of projects) {
@@ -385,6 +476,14 @@ export async function syncLocalDataToSupabase(
       if (ok) syncedInquiries++;
     }
 
+    // Sync Gallery Photos
+    if (gallery && gallery.length > 0) {
+      for (const g of gallery) {
+        const ok = await saveGalleryItemToSupabase(g);
+        if (ok) syncedGallery++;
+      }
+    }
+
     // Sync Company Settings if companyInfo provided
     let syncedSettings = false;
     if (companyInfo) {
@@ -392,9 +491,10 @@ export async function syncLocalDataToSupabase(
     }
 
     const settingsMsg = syncedSettings ? ' and official contact settings' : '';
+    const galleryMsg = syncedGallery > 0 ? `, ${syncedGallery} gallery photos` : '';
     return {
       success: true,
-      message: `Synced ${syncedProjects} projects, ${syncedTeam} team members, ${syncedInquiries} inquiries${settingsMsg} to Supabase!`,
+      message: `Synced ${syncedProjects} projects, ${syncedTeam} team members, ${syncedInquiries} inquiries${galleryMsg}${settingsMsg} to Supabase!`,
     };
   } catch (err: any) {
     return {
