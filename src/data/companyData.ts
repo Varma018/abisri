@@ -178,6 +178,38 @@ export const SERVICES_DATA: ServiceItem[] = [
     ],
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
     timeline: '6 – 14 Months'
+  },
+  {
+    id: 'industrial-sheeting',
+    title: 'Industrial Sheeting',
+    shortDescription: 'High-tensile Galvalume & PPGL color-coated roof and wall cladding solutions with integrated insulation.',
+    fullDescription: 'High-tensile trapezoidal industrial roof and wall sheeting engineered for extreme weather resilience, corrosion resistance, and thermal efficiency. We supply and erect pre-painted Galvalume (PPGL) and Bare Galvalume sheets with weather-tight silicone washers, continuous ridge caps, eaves gutters, downpipes, and multi-layer thermal insulation.',
+    iconName: 'Layers',
+    deliverables: [
+      'High-Tensile Galvalume (AZ150) / PPGL 0.50mm & 0.60mm Profile Sheeting',
+      'Corrosion-Resistant Class-3 & Class-4 Self-Drilling Fasteners with EPDM Washers',
+      'Continuous Ridge Ventilators, Barge Boards, Eaves Gutters & Downspouts',
+      'High-Density Glass Wool & Rockwool Thermal Underdeck Insulation',
+      'UV-Stabilized Polycarbonate Daylight Panels for Natural Plant Illumination'
+    ],
+    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1200&auto=format&fit=crop',
+    timeline: '2 – 4 Weeks'
+  },
+  {
+    id: 'standing-seam-sheeting',
+    title: 'Standing Seam Sheeting',
+    shortDescription: '100% leak-proof, puncture-free 360° mechanically seamed concealed roof systems for large-span PEB structures.',
+    fullDescription: 'State-of-the-art standing seam concealed-clip metal roofing engineered specifically for low-pitch, large-span pre-engineered buildings and premium industrial godowns. Formed on-site in continuous unbroken lengths, this system eliminates horizontal lap joints and through-fastener penetrations, locking panels together with double-turn 360-degree motorized seams.',
+    iconName: 'ShieldCheck',
+    deliverables: [
+      'On-Site Continuous Roll-Forming to Eliminate End-Laps up to 60+ Meters',
+      'Concealed Sliding Expansion Clips Allowing Unhindered Thermal Movement',
+      '360° Double-Lock Mechanical Electric Seaming for Extreme Rain & Wind Resistance',
+      'Tested to ASTM E1592 & FM Global Uplift Rigorous Wind Loading Standards',
+      'Zero Exposed Fastener Penetrations Delivering 100% Water-Tight Guarantee'
+    ],
+    image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1200&auto=format&fit=crop',
+    timeline: '3 – 6 Weeks'
   }
 ];
 

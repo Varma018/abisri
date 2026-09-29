@@ -7,19 +7,24 @@ import {
   Truck, 
   Building2, 
   ArrowRight, 
-  Check 
+  Check,
+  Layers,
+  ShieldCheck 
 } from 'lucide-react';
 import { SERVICES_DATA } from '../data/companyData';
 import { ServiceItem } from '../types';
+import { AboutSheetingSection } from './AboutSheetingSection';
 
 interface ServicesSectionProps {
   isStandalonePage?: boolean;
   onSelectService: (service: ServiceItem) => void;
+  onOpenConsultation?: (scope?: string) => void;
 }
 
 export const ServicesSection: React.FC<ServicesSectionProps> = ({ 
   isStandalonePage = false,
-  onSelectService 
+  onSelectService,
+  onOpenConsultation
 }) => {
   const getServiceIcon = (iconName: string) => {
     switch (iconName) {
@@ -33,6 +38,10 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
         return <Hammer className="w-6 h-6 text-[#E31B23]" />;
       case 'Truck':
         return <Truck className="w-6 h-6 text-[#E31B23]" />;
+      case 'Layers':
+        return <Layers className="w-6 h-6 text-[#E31B23]" />;
+      case 'ShieldCheck':
+        return <ShieldCheck className="w-6 h-6 text-[#E31B23]" />;
       default:
         return <Building2 className="w-6 h-6 text-[#E31B23]" />;
     }
@@ -56,7 +65,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                 Our Services
               </h1>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Custom construction and infrastructure solutions built around your business requirements. We specialize in industrial sheds, godowns, PEB erection, structural steel, and turnkey industrial infrastructure.
+                Custom construction and infrastructure solutions built around your business requirements. We specialize in industrial sheds, godowns, PEB erection, structural steel, industrial &amp; standing seam sheeting, and turnkey industrial infrastructure.
               </p>
             </div>
           </div>
@@ -76,7 +85,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               Our Services
             </h2>
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              Custom construction and infrastructure solutions built around your business requirements.
+              Custom construction and infrastructure solutions built around your business requirements, from structural steel and PEB frameworks to advanced industrial sheeting.
             </p>
           </div>
         )}
@@ -150,6 +159,9 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             </div>
           ))}
         </div>
+
+        {/* Dedicated About Sheeting & Cladding Section */}
+        <AboutSheetingSection />
 
       </div>
     </section>

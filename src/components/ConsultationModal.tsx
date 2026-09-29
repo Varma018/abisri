@@ -243,6 +243,8 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
                     <option value="Godown & Warehouse Construction">Godown & Warehouse Construction</option>
                     <option value="PEB Erection">PEB Erection</option>
                     <option value="Structural Steel Works">Structural Steel Works</option>
+                    <option value="Industrial Sheeting">Industrial Sheeting</option>
+                    <option value="Standing Seam Sheeting">Standing Seam Sheeting</option>
                     <option value="Infrastructure Development">Infrastructure Development</option>
                     <option value="Industrial Manufacturing Facilities">Industrial Manufacturing Facilities</option>
                   </select>

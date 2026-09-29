@@ -45,6 +45,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     { name: 'Godown & Warehouse Construction', view: 'services' },
     { name: 'PEB Erection', view: 'services' },
     { name: 'Structural Steel Works', view: 'services' },
+    { name: 'Industrial Sheeting', view: 'services' },
+    { name: 'Standing Seam Sheeting', view: 'services' },
     { name: 'Infrastructure Development', view: 'services' },
     { name: 'Turnkey Industrial Plants', view: 'services' },
   ];

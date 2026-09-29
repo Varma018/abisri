@@ -8,7 +8,7 @@ import { ServicesSection } from './components/ServicesSection';
 import { ProjectsSection } from './components/ProjectsSection';
 import { WhyChooseUsSection } from './components/WhyChooseUsSection';
 import { ProcessSection } from './components/ProcessSection';
-import { QualityCommitmentSection } from './components/QualityCommitmentSection';
+import { SafetyInPEBSection } from './components/SafetyInPEBSection';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { CTASection } from './components/CTASection';
 import { ContactSection } from './components/ContactSection';
@@ -453,8 +453,8 @@ export default function App() {
               </div>
             </section>
 
-            {/* Quality Commitment Section */}
-            <QualityCommitmentSection />
+            {/* Safety in PEB Section */}
+            <SafetyInPEBSection />
 
             {/* Client Testimonials */}
             <TestimonialsSection />
@@ -483,6 +483,7 @@ export default function App() {
           <ServicesSection
             isStandalonePage={true}
             onSelectService={(service) => setSelectedService(service)}
+            onOpenConsultation={(scope) => handleOpenConsultation(scope)}
           />
         )}
 

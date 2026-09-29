@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  Building, 
   ShieldCheck, 
-  Award, 
   Compass, 
-  CheckCircle2, 
   HardHat, 
   Users, 
   Phone, 
   Mail, 
-  ArrowRight,
   Activity,
   Layers,
   Check
@@ -20,26 +16,26 @@ import { useCompanyInfo } from '../context/CompanyContext';
 
 const SHOWCASE_TABS = [
   {
-    id: 'erection',
-    label: 'Crane & Rigging',
-    tag: 'Active On-Site Execution',
-    title: 'Precision Heavy Steel Erection',
-    description: 'Laser-guided column alignment and torque-calibrated high-strength bolts under certified crane supervision.',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop',
-    stat: '500,000+ Safe Hours'
-  },
-  {
     id: 'peb',
-    label: 'PEB Framework',
+    label: 'PEB',
     tag: 'Engineering Precision',
-    title: 'Pre-Engineered Building Detailing',
-    description: 'High-tensile Grade 50 steel framework with seismic resistance and clear spans up to 60 meters.',
-    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1600&auto=format&fit=crop',
+    title: 'Pre-Engineered Building Detailing & Erection',
+    description: 'High-tensile Grade 50 steel framework with seismic resistance, clear spans up to 60 meters, and laser-guided column alignment.',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop',
     stat: 'IS:800:2007 Compliant'
   },
   {
-    id: 'godown',
-    label: 'Finished Godown',
+    id: 'sheeting',
+    label: 'Sheeting',
+    tag: 'Roof & Wall Enclosures',
+    title: 'Industrial & Standing Seam Sheeting',
+    description: 'High-tensile Galvalume, PPGL trapezoidal cladding, and 360° mechanically locked standing seam roofing systems.',
+    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop',
+    stat: '100% Leak-Proof Systems'
+  },
+  {
+    id: 'finished-warehouse',
+    label: 'Finished Warehouse',
     tag: 'Turnkey Delivery',
     title: 'High-Bay Logistics Warehouses',
     description: '12m clear stacking height, jointless laser-screed floor slabs, dock bays, and integrated stormwater systems.',
@@ -325,62 +321,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({
             ))}
           </div>
 
-        </div>
-      </section>
-
-      {/* 4. Certifications & Accreditations */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white border border-gray-200 p-8 sm:p-10 rounded space-y-6 shadow-xs">
-          <div className="max-w-3xl">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#E31B23]">
-              Compliance & Safety Standards
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-950 mt-2 mb-3 font-display">
-              Registered, Certified & Inspected
-            </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              We operate under full compliance with regulatory boards and state authorities, holding active accreditations for engineering excellence and quality construction.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <div className="p-5 bg-gray-50 border border-gray-200 rounded space-y-2">
-              <div className="w-9 h-9 rounded bg-red-50 text-[#E31B23] flex items-center justify-center">
-                <Award className="w-5 h-5" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 font-display">RERA Registered</h4>
-              <p className="text-xs text-gray-600">{companyInfo.reraReg}</p>
-            </div>
-
-            <div className="p-5 bg-gray-50 border border-gray-200 rounded space-y-2">
-              <div className="w-9 h-9 rounded bg-red-50 text-[#E31B23] flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 font-display">ISO 9001:2015</h4>
-              <p className="text-xs text-gray-600">Quality Management System Certified Industrial Contractor.</p>
-            </div>
-
-            <div className="p-5 bg-gray-50 border border-gray-200 rounded space-y-2">
-              <div className="w-9 h-9 rounded bg-red-50 text-[#E31B23] flex items-center justify-center">
-                <Building className="w-5 h-5" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 font-display">IS 800-2007 Code</h4>
-              <p className="text-xs text-gray-600">Strict structural steel compliance, certified welders and ultrasonic testing.</p>
-            </div>
-          </div>
-
-          <div className="pt-5 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-600">
-              Ready to discuss your industrial shed, godown warehouse, or infrastructure project?
-            </p>
-            <button
-              onClick={onOpenConsultation}
-              className="px-6 py-3 rounded bg-[#E31B23] hover:bg-[#C7141B] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-sm transition-all"
-            >
-              <span>Contact Us</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       </section>
 

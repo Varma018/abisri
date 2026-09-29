@@ -29,6 +29,7 @@ export interface ProjectItem {
   category: ProjectCategory;
   location: string;
   city: string;
+  status?: 'Completed' | 'Ongoing' | 'Under Construction';
   shortDescription: string;
   fullDescription: string;
   image: string;

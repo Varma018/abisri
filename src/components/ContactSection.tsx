@@ -68,6 +68,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     'Godown & Warehouse Construction',
     'PEB Erection',
     'Structural Steel Works',
+    'Industrial Sheeting',
+    'Standing Seam Sheeting',
     'Infrastructure Development',
     'Industrial Manufacturing Facilities',
     'Other Industrial Project'

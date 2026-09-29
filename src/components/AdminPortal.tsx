@@ -27,7 +27,9 @@ import {
   Eye,
   EyeOff,
   PhoneCall,
-  BarChart3
+  BarChart3,
+  Sliders,
+  CheckCircle2
 } from 'lucide-react';
 import { ProjectItem, TeamMember, InquiryItem } from '../types';
 import { COMPANY_INFO } from '../data/companyData';
@@ -88,6 +90,51 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Dynamic completed projects counter displayed on the homepage stats
   const liveCompletedProjects = calculateCompletedProjectsCount(projects.length, companyInfo);
+
+  // Edit Projects Completed Modal State
+  const [isEditCompletedModalOpen, setIsEditCompletedModalOpen] = useState(false);
+  const [completedBaseInput, setCompletedBaseInput] = useState(companyInfo.completedProjectsBase || '12');
+  const [completedModeInput, setCompletedModeInput] = useState(companyInfo.completedProjectsMode || 'base_plus_added');
+  const [isSavingCounter, setIsSavingCounter] = useState(false);
+
+  const handleOpenEditCompletedModal = () => {
+    setCompletedBaseInput(companyInfo.completedProjectsBase || '12');
+    setCompletedModeInput(companyInfo.completedProjectsMode || 'base_plus_added');
+    setIsEditCompletedModalOpen(true);
+  };
+
+  const handleSaveCompletedCounter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingCounter(true);
+    try {
+      await updateCompanyInfo({
+        completedProjectsBase: completedBaseInput.trim() || '12',
+        completedProjectsMode: completedModeInput as any
+      });
+      const newVal = calculateCompletedProjectsCount(projects.length, {
+        completedProjectsBase: completedBaseInput.trim() || '12',
+        completedProjectsMode: completedModeInput as any
+      });
+      showToast(`Projects Completed counter updated to "${newVal}"!`);
+      setIsEditCompletedModalOpen(false);
+    } catch {
+      showToast('Failed to update counter.');
+    } finally {
+      setIsSavingCounter(false);
+    }
+  };
+
+  const handleToggleProjectCompletion = (proj: ProjectItem) => {
+    const nextStatus: 'Completed' | 'Ongoing' = (proj.status === 'Ongoing' || proj.status === 'Under Construction') 
+      ? 'Completed' 
+      : 'Ongoing';
+    const updated: ProjectItem = {
+      ...proj,
+      status: nextStatus
+    };
+    onUpdateProject(updated);
+    showToast(`Project "${proj.title}" marked as ${nextStatus}!`);
+  };
 
   // Active Admin Section
   const [adminTab, setAdminTab] = useState<'projects' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
@@ -186,6 +233,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setProjectForm({
       title: '',
       category: 'Luxury Villas',
+      status: 'Completed',
       location: 'Jubilee Hills',
       city: 'Hyderabad',
       builtUpArea: '5,500 sq.ft',
@@ -208,6 +256,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setEditingProjectId(proj.id);
     setProjectForm({
       ...proj,
+      status: proj.status || 'Completed',
       galleryImages: proj.galleryImages && proj.galleryImages.length > 0 ? proj.galleryImages : [proj.image]
     });
     setIsProjectModalOpen(true);
@@ -235,6 +284,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         id: editingProjectId,
         title: projectForm.title || 'Untitled Project',
         category: projectForm.category as any || 'Luxury Villas',
+        status: projectForm.status || 'Completed',
         location: projectForm.location || 'Hyderabad',
         city: projectForm.city || 'Hyderabad',
         builtUpArea: projectForm.builtUpArea || '4,500 sq.ft',
@@ -255,6 +305,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         id: `proj-${Date.now()}`,
         title: projectForm.title || 'New Architectural Build',
         category: projectForm.category as any || 'Luxury Villas',
+        status: projectForm.status || 'Completed',
         location: projectForm.location || 'Banjara Hills',
         city: projectForm.city || 'Hyderabad',
         builtUpArea: projectForm.builtUpArea || '6,000 sq.ft',
@@ -553,14 +604,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           <div className="flex items-center gap-2">
             {adminTab === 'projects' && (
-              <button
-                id="admin-add-project-btn"
-                onClick={openNewProjectModal}
-                className="px-4 py-2 rounded-sm bg-gradient-to-r from-[#c5a059] to-[#b8860b] text-[#0e1117] font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#c5a059]/25 hover:brightness-105 transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Project</span>
-              </button>
+              <>
+                <button
+                  id="admin-edit-completed-counter-btn"
+                  onClick={handleOpenEditCompletedModal}
+                  className="px-3.5 py-2 rounded-sm bg-[#16202f] hover:bg-[#202c3e] border border-[#2d3e58] text-[#c5a059] hover:text-[#e4c27a] font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                  title="Directly edit the Projects Completed counter"
+                >
+                  <BarChart3 className="w-3.5 h-3.5 text-[#E31B23]" />
+                  <span>Edit Projects Completed ({liveCompletedProjects})</span>
+                </button>
+                <button
+                  id="admin-add-project-btn"
+                  onClick={openNewProjectModal}
+                  className="px-4 py-2 rounded-sm bg-gradient-to-r from-[#c5a059] to-[#b8860b] text-[#0e1117] font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#c5a059]/25 hover:brightness-105 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Project</span>
+                </button>
+              </>
             )}
 
             {adminTab === 'team' && (
@@ -633,23 +695,36 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     </h4>
                     <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold border border-emerald-500/30 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Auto-Increases With Projects
+                      Live Dynamic Stat
                     </span>
                   </div>
                   <p className="text-xs text-[#9fb0c3] mt-0.5">
-                    Portfolio currently has <strong>{projects.length}</strong> showcase projects. Whenever you add new projects, the homepage completed counter automatically increases.
+                    Portfolio currently has <strong>{projects.length}</strong> showcase projects. Click <strong>Edit Projects Completed</strong> to adjust the count, baseline, or calculation method.
                   </p>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setAdminTab('contact')}
-                className="px-3 py-1.5 rounded-sm bg-[#1b2332] hover:bg-[#253043] border border-[#2d3a4e] text-[#c4cbd8] hover:text-white text-xs font-semibold shrink-0 cursor-pointer flex items-center gap-1.5 transition-colors"
-                title="Configure baseline or calculation mode"
-              >
-                <span>Adjust Counter / Mode</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  id="banner-edit-completed-counter-btn"
+                  onClick={handleOpenEditCompletedModal}
+                  className="px-3.5 py-1.5 rounded-sm bg-[#E31B23] hover:bg-[#c7141b] text-white text-xs font-bold uppercase tracking-wider shrink-0 cursor-pointer flex items-center gap-1.5 transition-colors shadow-sm"
+                  title="Directly edit the Projects Completed counter"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Projects Completed</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdminTab('contact')}
+                  className="px-2.5 py-1.5 rounded-sm bg-[#1b2332] hover:bg-[#253043] border border-[#2d3a4e] text-[#c4cbd8] hover:text-white text-xs font-semibold shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
+                  title="Advanced company settings tab"
+                >
+                  <Sliders className="w-3 h-3 text-[#c5a059]" />
+                  <span>Settings</span>
+                </button>
+              </div>
             </div>
 
             {/* Projects Grid */}
@@ -672,7 +747,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           {proj.category}
                         </span>
                       </div>
-                      <div className="absolute top-3 right-3">
+                      <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleProjectCompletion(proj);
+                          }}
+                          className={`px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wider border cursor-pointer transition-all flex items-center gap-1 ${
+                            proj.status === 'Ongoing' || proj.status === 'Under Construction'
+                              ? 'bg-amber-950/90 border-amber-500/50 text-amber-300 hover:bg-amber-900'
+                              : 'bg-emerald-950/90 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900'
+                          }`}
+                          title="Click to toggle Completed / Ongoing status"
+                        >
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>{proj.status === 'Ongoing' || proj.status === 'Under Construction' ? 'Ongoing' : 'Completed'}</span>
+                        </button>
+                      </div>
+                      <div className="absolute bottom-3 right-3">
                         <span className="px-2 py-0.5 rounded-sm bg-[#0a0d14]/85 text-[#9ca3af] text-[10px]">
                           {proj.builtUpArea}
                         </span>
@@ -986,7 +1079,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold mb-1">
                     Category *
@@ -996,12 +1089,30 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value as any })}
                     className="w-full px-3.5 py-2 bg-[#171e2c] border border-[#28364b] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none"
                   >
+                    <option value="Industrial Sheds">Industrial Sheds</option>
+                    <option value="Warehouses">Warehouses</option>
+                    <option value="PEB Structures">PEB Structures</option>
+                    <option value="Industrial Facilities">Industrial Facilities</option>
+                    <option value="Structural Steel">Structural Steel</option>
+                    <option value="Infrastructure Projects">Infrastructure Projects</option>
+                    <option value="Commercial Buildings">Commercial Buildings</option>
                     <option value="Luxury Villas">Luxury Villas</option>
                     <option value="Residential Buildings">Residential Buildings</option>
-                    <option value="Commercial Buildings">Commercial Buildings</option>
-                    <option value="Modern Homes">Modern Homes</option>
-                    <option value="Renovation Projects">Renovation Projects</option>
-                    <option value="Infrastructure Projects">Infrastructure Projects</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold mb-1 flex items-center justify-between">
+                    <span>Project Status *</span>
+                  </label>
+                  <select
+                    value={projectForm.status || 'Completed'}
+                    onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value as any })}
+                    className="w-full px-3.5 py-2 bg-[#171e2c] border border-[#28364b] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none font-semibold"
+                  >
+                    <option value="Completed">✓ Completed (Contract Handover)</option>
+                    <option value="Ongoing">⏳ Ongoing / In Progress</option>
+                    <option value="Under Construction">🏗 Under Construction</option>
                   </select>
                 </div>
 
@@ -1014,7 +1125,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     required
                     value={projectForm.city}
                     onChange={(e) => setProjectForm({ ...projectForm, city: e.target.value })}
-                    placeholder="e.g. Hyderabad, Bengaluru, Pune"
+                    placeholder="e.g. Hyderabad, Bengaluru"
                     className="w-full px-3.5 py-2 bg-[#171e2c] border border-[#28364b] focus:border-[#c5a059] rounded-sm text-sm text-[#f8fafc] focus:outline-none"
                   />
                 </div>
@@ -1394,6 +1505,144 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT PROJECTS COMPLETED COUNTER */}
+      {isEditCompletedModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-[#111622] border border-[#28354a] rounded-sm shadow-2xl overflow-hidden my-8">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1c2534] bg-[#141b28]">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded bg-[#E31B23]/15 border border-[#E31B23]/30 flex items-center justify-center text-[#E31B23]">
+                  <BarChart3 className="w-4 h-4" />
+                </div>
+                <h3 className="font-cinzel text-sm font-bold uppercase tracking-wider text-[#f8fafc]">
+                  Edit Projects Completed Counter
+                </h3>
+              </div>
+              <button 
+                onClick={() => setIsEditCompletedModalOpen(false)}
+                className="text-[#8493a6] hover:text-white p-1 cursor-pointer"
+                title="Close modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCompletedCounter} className="p-6 space-y-5">
+              
+              {/* Live Preview Display Card */}
+              <div className="p-4 bg-[#161e2c] border border-[#273549] rounded-sm flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#8b9bb0] block">
+                    Homepage Live Counter Preview
+                  </span>
+                  <p className="text-xs text-[#cad5e4] mt-0.5">
+                    Showcase projects: <strong>{projects.length}</strong>
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-black text-[#c5a059] font-mono">
+                    {calculateCompletedProjectsCount(projects.length, {
+                      completedProjectsMode: completedModeInput,
+                      completedProjectsBase: completedBaseInput
+                    })}
+                  </div>
+                  <span className="text-[10px] text-gray-400 uppercase font-semibold">Projects Completed</span>
+                </div>
+              </div>
+
+              {/* Mode Selection */}
+              <div className="space-y-1.5">
+                <label className="block text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold">
+                  Calculation Mode
+                </label>
+                <select
+                  value={completedModeInput}
+                  onChange={(e) => setCompletedModeInput(e.target.value as any)}
+                  className="w-full px-3.5 py-2.5 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none cursor-pointer"
+                >
+                  <option value="base_plus_added">
+                    Auto-Increment: Base ({completedBaseInput || '12'}) + Newly Added Projects
+                  </option>
+                  <option value="custom_fixed">
+                    Fixed Custom Number: Always displays exact value entered below
+                  </option>
+                  <option value="portfolio_exact">
+                    Strict Database Count: Exact showcase projects in catalog ({projects.length})
+                  </option>
+                </select>
+                <p className="text-[11px] text-[#6b7b90]">
+                  {completedModeInput === 'base_plus_added' && 'Recommended: Baseline increases dynamically as new projects are added to your portfolio.'}
+                  {completedModeInput === 'custom_fixed' && 'Shows your custom fixed number with a "+" sign (e.g. 15+, 25+, 50+).'}
+                  {completedModeInput === 'portfolio_exact' && 'Always matches the exact number of active portfolio items.'}
+                </p>
+              </div>
+
+              {/* Base / Fixed Value Input */}
+              {completedModeInput !== 'portfolio_exact' && (
+                <div className="space-y-2">
+                  <label className="block text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold">
+                    {completedModeInput === 'custom_fixed' ? 'Fixed Value (e.g. 15+)' : 'Baseline Completed Projects Count'}
+                  </label>
+                  <input
+                    type="text"
+                    value={completedBaseInput}
+                    onChange={(e) => setCompletedBaseInput(e.target.value)}
+                    placeholder="12+"
+                    className="w-full px-3.5 py-2 bg-[#171e2c] border border-[#28364b] focus:border-[#c5a059] rounded-sm text-sm text-[#f8fafc] focus:outline-none font-mono"
+                  />
+                  
+                  {/* Quick Preset Buttons */}
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#7e8e9f] block mb-1.5">
+                      Quick Preset Values:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['12+', '15+', '20+', '25+', '35+', '50+', '75+', '100+'].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setCompletedBaseInput(preset)}
+                          className={`px-2.5 py-1 text-xs rounded-sm border transition-colors cursor-pointer ${
+                            completedBaseInput === preset
+                              ? 'bg-[#c5a059] text-[#0e1117] font-bold border-[#c5a059]'
+                              : 'bg-[#182130] text-[#9ca3af] hover:text-white border-[#273549]'
+                          }`}
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-[#1d2636] flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditCompletedModalOpen(false)}
+                  className="px-4 py-2 rounded-sm bg-[#18202d] hover:bg-[#202b3d] text-xs text-[#95a3b7] font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingCounter}
+                  className="px-5 py-2 rounded-sm bg-[#c5a059] hover:bg-[#d4af37] text-[#0e1117] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isSavingCounter ? 'Saving...' : 'Save & Publish Counter'}</span>
+                </button>
+              </div>
+
+            </form>
+
           </div>
         </div>
       )}
