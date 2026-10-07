@@ -26,6 +26,7 @@ export const COMPANY_INFO: CompanyInfo = {
   completedProjectsMode: 'base_plus_added',
   instagramUrl: 'https://www.instagram.com/yards_infra?stkn=MTNienliczBwdndmeA==',
   linkedinUrl: 'https://www.linkedin.com/company/yards-infra',
+  footerBgImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1600&auto=format&fit=crop',
 };
 
 export const STATS_DATA: StatItem[] = [
@@ -222,9 +223,9 @@ export const PROJECTS_DATA: ProjectItem[] = [
     city: 'Hyderabad',
     shortDescription: 'Modern 65,000 sq.ft industrial shed equipped with dual 20-ton overhead EOT cranes and high-durability floor slabs.',
     fullDescription: 'Engineered for a precision equipment manufacturing enterprise in Patancheru. Built with high-tensile steel trusses, 11-meter clear hook height, FM2 laser-screed floor slabs, and insulated sandwich panel roofing to ensure optimal indoor temperatures during peak summer.',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
+    image: '/projects/industrial-shed-hyderabad.jpg',
     galleryImages: [
-      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
+      '/projects/industrial-shed-hyderabad.jpg',
       'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop'
     ],
@@ -241,8 +242,9 @@ export const PROJECTS_DATA: ProjectItem[] = [
     city: 'Telangana',
     shortDescription: '120,000 sq.ft modern logistics distribution godown with 14 dock levelers, heavy trailer aprons, and 12m clear height.',
     fullDescription: 'Custom-developed for national 3PL and supply-chain operations along the Hyderabad Outer Ring Road corridor. The facility features 12-meter clear stack height, fire sprinkler risers, heavy reinforced concrete truck aprons, and automated dock doors.',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop',
+    image: '/projects/logistics-warehouse-telangana.jpg',
     galleryImages: [
+      '/projects/logistics-warehouse-telangana.jpg',
       'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=1200&auto=format&fit=crop'
     ],
@@ -259,8 +261,9 @@ export const PROJECTS_DATA: ProjectItem[] = [
     city: 'Andhra Pradesh',
     shortDescription: 'Large-span pre-engineered building (PEB) complex with 60-meter clear span without interior intermediate columns.',
     fullDescription: 'Showcasing engineering mastery in clear-span structural design. This 85,000 sq.ft facility utilizes high-grade ASTM A572 Grade 50 steel with custom tapered rafters, providing an uninterrupted clear span of 60 meters for flexible production layouts.',
-    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop',
+    image: '/projects/peb-structure-ap.jpg',
     galleryImages: [
+      '/projects/peb-structure-ap.jpg',
       'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop'
     ],
@@ -277,8 +280,9 @@ export const PROJECTS_DATA: ProjectItem[] = [
     city: 'Telangana',
     shortDescription: 'Turnkey industrial manufacturing facility with machine vibration foundations, corporate annex, and electrical substation.',
     fullDescription: 'A turnkey industrial manufacturing project combining high-bay production bays, administrative offices, laboratory testing suites, and dedicated high-voltage substation foundations. Executed within 7 months with zero recorded safety incidents.',
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
+    image: '/projects/industrial-facility-telangana.jpg',
     galleryImages: [
+      '/projects/industrial-facility-telangana.jpg',
       'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
     ],
@@ -376,47 +380,35 @@ export const PROCESS_STEPS: ProcessStep[] = [
     description: 'Understand client requirements, storage volumes, equipment layout, and plot parameters.',
     detailedScope: 'Initial discovery session to assess site contours, soil bearing capacity, regulatory industrial bylaws, crane load requirements, and realistic project budgets.',
     iconName: 'MessageSquareText',
-    durationApprox: 'Week 1'
+    durationApprox: 'Week 1',
+    deliverable: 'Site Assessment & Feasibility Report'
   },
   {
     stepNumber: '02',
-    title: 'Structural Design & PEB Detailing',
-    description: 'Develop optimized structural steel designs and 3D architectural plans.',
-    detailedScope: 'Structural analysis using STAAD.Pro, high-precision shop drawings, bolt connection detailing, wind load calculations, and municipal sanction filings.',
-    iconName: 'Compass',
-    durationApprox: 'Weeks 2 – 3'
-  },
-  {
-    stepNumber: '03',
     title: 'Transparent Estimation & BOQ',
     description: 'Provide an itemized, transparent project estimate and fixed-timeline schedule.',
     detailedScope: 'Clear, line-by-line itemized Bill of Quantities (BOQ) covering steel grades, sheeting specifications, concrete strengths, and milestone payment schedules.',
     iconName: 'Calculator',
-    durationApprox: 'Week 4'
+    durationApprox: 'Week 2',
+    deliverable: 'Itemized BOQ & Project Timeline'
+  },
+  {
+    stepNumber: '03',
+    title: 'Safe Erection & Sheeting',
+    description: 'Heavy crane erection, secondary framing, roofing, and safe sheeting installation.',
+    detailedScope: 'Certified rigging crews erect primary steel frames, followed by roof sheeting, standing seam systems, wall cladding, and thermal insulation.',
+    iconName: 'CheckCircle2',
+    durationApprox: 'Months 2 – 4',
+    deliverable: 'Certified Erection & Weather-Tight Sheeting'
   },
   {
     stepNumber: '04',
-    title: 'Precision Fabrication & Foundation',
-    description: 'Parallel execution of plant fabrication and on-site civil foundations.',
-    detailedScope: 'Excavation, casting anchor-bolt plinths, while steel members are cut, drilled, welded, sandblasted, and painted in controlled plant conditions.',
-    iconName: 'HardHat',
-    durationApprox: 'Months 2 – 3'
-  },
-  {
-    stepNumber: '05',
-    title: 'Safe Erection & Flooring',
-    description: 'Heavy crane erection, secondary framing, roofing, and laser screed flooring.',
-    detailedScope: 'Certified rigging crews erect primary steel frames, followed by roof sheeting, insulation, and casting superflat FM2 laser-screed industrial floor slabs.',
-    iconName: 'CheckCircle2',
-    durationApprox: 'Months 3 – 5'
-  },
-  {
-    stepNumber: '06',
     title: 'Final Handover & Certification',
     description: 'Snag rectifications, test certifications, and operational handover.',
     detailedScope: 'Weld test records, structural stability certificates, drainage runoffs, warranty documentation, and official key handover ready for commercial operations.',
     iconName: 'KeyRound',
-    durationApprox: 'Final Month'
+    durationApprox: 'Final Month',
+    deliverable: 'Stability Certificate & Handover Kit'
   }
 ];
 

@@ -62,6 +62,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [emailApiStatus, setEmailApiStatus] = useState<'idle' | 'sending' | 'dispatched' | 'fallback'>('idle');
   const [emailApiMessage, setEmailApiMessage] = useState<string>('');
+  const [honeypot, setHoneypot] = useState('');
 
   const projectTypes = [
     'Industrial Shed Construction',
@@ -93,8 +94,27 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Anti-spam bot trap
+    if (honeypot) {
+      setIsSubmitting(false);
+      return;
+    }
+
     if (!formData.fullName.trim() || !formData.phoneNumber.trim() || !formData.email.trim()) {
       setFormError('Please fill in your Name, Phone Number, and Email Address.');
+      return;
+    }
+
+    const phoneDigits = formData.phoneNumber.replace(/[^0-9]/g, '');
+    if (phoneDigits.length < 10) {
+      setFormError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setFormError('Please enter a valid official email address.');
       return;
     }
 
@@ -588,6 +608,17 @@ Notes: ${formData.message || 'Consultation requested.'}`;
               ) : (
                 /* Interactive Form */
                 <form id="consultation-contact-form" onSubmit={handleSubmit} className="space-y-6">
+                  {/* Anti-spam honeypot bot trap */}
+                  <div className="hidden" aria-hidden="true">
+                    <input
+                      type="text"
+                      name="company_website_trap"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
                   
                   <div className="border-b border-gray-100 pb-4 mb-6">
                     <h3 className="text-2xl font-extrabold text-gray-950 font-display">

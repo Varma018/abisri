@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { 
   getSupabaseCredentials, 
-  saveCustomSupabaseCredentials, 
   isSupabaseConfigured 
 } from '../lib/supabase';
 import { 
@@ -49,9 +48,20 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({
   const [anonKey, setAnonKey] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{ 
+    ok: boolean; 
+    message: string;
+    details?: {
+      inquiries: boolean;
+      projects: boolean;
+      teamMembers: boolean;
+      gallery: boolean;
+      companySettings: boolean;
+    }
+  } | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
+  const [copiedMissingSql, setCopiedMissingSql] = useState(false);
   const [showSqlPreview, setShowSqlPreview] = useState(false);
 
   useEffect(() => {
@@ -60,28 +70,6 @@ export const AdminDatabaseTab: React.FC<AdminDatabaseTabProps> = ({
     setAnonKey(creds.anonKey);
     setIsConfigured(isSupabaseConfigured());
   }, []);
-
-  const handleSaveCredentials = (e: React.FormEvent) => {
-    e.preventDefault();
-    saveCustomSupabaseCredentials(url, anonKey);
-    const creds = getSupabaseCredentials();
-    setUrl(creds.url);
-    setAnonKey(creds.anonKey);
-    const configured = isSupabaseConfigured();
-    setIsConfigured(configured);
-    setTestResult(null);
-
-    if (configured) {
-      showToast('Supabase credentials saved successfully!');
-      // Trigger a test immediately
-      handleTestConnection();
-      if (onRefreshData) {
-        onRefreshData();
-      }
-    } else {
-      showToast('Cleared Supabase custom credentials. Switched to local mode.');
-    }
-  };
 
   const handleTestConnection = async () => {
     setIsTesting(true);
@@ -277,6 +265,62 @@ CREATE INDEX IF NOT EXISTS idx_gallery_category ON public.gallery (category);`;
     setTimeout(() => setCopiedSql(false), 2500);
   };
 
+  const missingTablesSqlScript = `-- ==============================================================================
+-- RUN THIS IN SUPABASE SQL EDITOR TO CREATE MISSING TABLES & RESOLVE WARNINGS
+-- ==============================================================================
+
+-- 1. GALLERY TABLE
+CREATE TABLE IF NOT EXISTS public.gallery (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  description TEXT,
+  location TEXT,
+  date TEXT,
+  featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2. COMPANY SETTINGS TABLE
+CREATE TABLE IF NOT EXISTS public.company_settings (
+  id TEXT PRIMARY KEY DEFAULT 'primary',
+  settings JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.gallery ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.company_settings ENABLE ROW LEVEL SECURITY;
+
+-- Policies for gallery
+DROP POLICY IF EXISTS "Allow public select for gallery" ON public.gallery;
+CREATE POLICY "Allow public select for gallery" ON public.gallery FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow upsert for gallery" ON public.gallery;
+CREATE POLICY "Allow upsert for gallery" ON public.gallery FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow delete for gallery" ON public.gallery;
+CREATE POLICY "Allow delete for gallery" ON public.gallery FOR DELETE TO anon, authenticated USING (true);
+
+-- Policies for company_settings
+DROP POLICY IF EXISTS "Allow public select for company_settings" ON public.company_settings;
+CREATE POLICY "Allow public select for company_settings" ON public.company_settings FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow upsert for company_settings" ON public.company_settings;
+CREATE POLICY "Allow upsert for company_settings" ON public.company_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_gallery_created_at ON public.gallery (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gallery_category ON public.gallery (category);`;
+
+  const handleCopyMissingSql = () => {
+    navigator.clipboard.writeText(missingTablesSqlScript);
+    setCopiedMissingSql(true);
+    showToast('SQL for missing tables copied to clipboard!');
+    setTimeout(() => setCopiedMissingSql(false), 2500);
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Top Header Status Banner */}
@@ -332,96 +376,123 @@ CREATE INDEX IF NOT EXISTS idx_gallery_category ON public.gallery (category);`;
 
       {/* Test feedback alert if available */}
       {testResult && (
-        <div className={`p-4 rounded-md border text-xs flex items-start gap-2.5 ${
+        <div className={`p-4 rounded-md border text-xs space-y-3 ${
           testResult.ok 
             ? 'bg-emerald-950/40 border-emerald-800 text-emerald-200' 
             : 'bg-rose-950/40 border-rose-800 text-rose-200'
         }`}>
-          {testResult.ok ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-          ) : (
-            <AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
-          )}
-          <div>
-            <span className="font-bold">{testResult.ok ? 'Connection Verified: ' : 'Connection Notice: '}</span>
-            <span>{testResult.message}</span>
+          <div className="flex items-start gap-2.5">
+            {testResult.ok ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+            )}
+            <div className="flex-1">
+              <span className="font-bold">{testResult.ok ? 'Connection Verified: ' : 'Connection Notice: '}</span>
+              <span>{testResult.message}</span>
+            </div>
           </div>
+
+          {testResult.details && (
+            <div className="pt-2 border-t border-emerald-800/40">
+              <div className="text-[11px] font-bold text-gray-300 uppercase tracking-wider mb-2">
+                Postgres Database Tables Status
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <div className={`p-2 rounded border text-center ${testResult.details.inquiries ? 'bg-emerald-900/30 border-emerald-700/60 text-emerald-300' : 'bg-amber-900/30 border-amber-700/60 text-amber-300'}`}>
+                  <div className="font-mono font-bold">inquiries</div>
+                  <div className="text-[10px] mt-0.5">{testResult.details.inquiries ? '✓ Active (7 items)' : '✗ Missing'}</div>
+                </div>
+                <div className={`p-2 rounded border text-center ${testResult.details.projects ? 'bg-emerald-900/30 border-emerald-700/60 text-emerald-300' : 'bg-amber-900/30 border-amber-700/60 text-amber-300'}`}>
+                  <div className="font-mono font-bold">projects</div>
+                  <div className="text-[10px] mt-0.5">{testResult.details.projects ? '✓ Active (7 items)' : '✗ Missing'}</div>
+                </div>
+                <div className={`p-2 rounded border text-center ${testResult.details.teamMembers ? 'bg-emerald-900/30 border-emerald-700/60 text-emerald-300' : 'bg-amber-900/30 border-amber-700/60 text-amber-300'}`}>
+                  <div className="font-mono font-bold">team_members</div>
+                  <div className="text-[10px] mt-0.5">{testResult.details.teamMembers ? '✓ Active (3 items)' : '✗ Missing'}</div>
+                </div>
+                <div className={`p-2 rounded border text-center ${testResult.details.gallery ? 'bg-emerald-900/30 border-emerald-700/60 text-emerald-300' : 'bg-amber-900/30 border-amber-700/60 text-amber-300'}`}>
+                  <div className="font-mono font-bold">gallery</div>
+                  <div className="text-[10px] mt-0.5">{testResult.details.gallery ? '✓ Active' : 'Pending SQL'}</div>
+                </div>
+                <div className={`p-2 rounded border text-center ${testResult.details.companySettings ? 'bg-emerald-900/30 border-emerald-700/60 text-emerald-300' : 'bg-amber-900/30 border-amber-700/60 text-amber-300'}`}>
+                  <div className="font-mono font-bold">company_settings</div>
+                  <div className="text-[10px] mt-0.5">{testResult.details.companySettings ? '✓ Active' : 'Pending SQL'}</div>
+                </div>
+              </div>
+
+              {(!testResult.details.gallery || !testResult.details.companySettings) && (
+                <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-amber-950/40 p-2.5 rounded border border-amber-800/60">
+                  <span className="text-[11px] text-amber-200">
+                    To eliminate the 16 dashboard warnings and reach 100% request success rate, create the 2 pending tables.
+                  </span>
+                  <button
+                    onClick={handleCopyMissingSql}
+                    className="px-3 py-1 rounded bg-[#c5a059] text-black font-bold text-[11px] hover:bg-[#d6af66] transition-colors shrink-0 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
+                  >
+                    {copiedMissingSql ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedMissingSql ? 'Copied to Clipboard!' : 'Copy Missing Tables SQL'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       {/* Credentials Configuration & Sync Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Credentials Form (7 cols) */}
+        {/* Left Column: Protected Environment Configuration (7 cols) */}
         <div className="lg:col-span-7 bg-[#131924] border border-[#232c3d] rounded-lg p-5">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#232c3d]">
-            <Key className="w-4 h-4 text-[#c5a059]" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-              Supabase Project Credentials
-            </h3>
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#232c3d]">
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-[#c5a059]" />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Supabase Environment Configuration
+              </h3>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
+              Protected (.env)
+            </span>
           </div>
 
-          <form onSubmit={handleSaveCredentials} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Supabase Project URL
+                Active Supabase Project URL
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://your-project-id.supabase.co"
-                  className="w-full bg-[#0a0d13] border border-[#232c3d] focus:border-[#c5a059] rounded px-3 py-2 text-xs text-white font-mono placeholder-gray-600 focus:outline-none transition-colors"
-                />
+              <div className="p-2.5 bg-[#0a0d13] border border-[#232c3d] rounded text-xs text-[#c5a059] font-mono break-all select-all">
+                {url || 'Not configured in environment'}
               </div>
               <p className="text-[11px] text-gray-500 mt-1">
-                Found in your Supabase Dashboard: Project Settings &gt; API &gt; Project URL.
+                Sourced strictly from <code className="text-gray-400">VITE_SUPABASE_URL</code>. Browser-side credential overrides are permanently disabled.
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Supabase Anon (Public) API Key
+                Supabase Anon (Public) Key
               </label>
-              <textarea
-                value={anonKey}
-                onChange={(e) => setAnonKey(e.target.value)}
-                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                rows={3}
-                className="w-full bg-[#0a0d13] border border-[#232c3d] focus:border-[#c5a059] rounded px-3 py-2 text-xs text-white font-mono placeholder-gray-600 focus:outline-none transition-colors"
-              />
+              <div className="p-2.5 bg-[#0a0d13] border border-[#232c3d] rounded text-xs text-gray-400 font-mono break-all">
+                {anonKey ? `${anonKey.slice(0, 24)}...${anonKey.slice(-16)}` : 'Not configured'}
+              </div>
               <p className="text-[11px] text-gray-500 mt-1">
-                Found in Project Settings &gt; API &gt; Project API keys &gt; <code className="text-[#c5a059]">anon public</code>.
+                Sourced strictly from <code className="text-gray-400">VITE_SUPABASE_ANON_KEY</code>.
               </p>
             </div>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
-                type="submit"
-                className="px-4 py-2 rounded bg-gradient-to-r from-[#c5a059] to-[#b8860b] text-[#0e1117] text-xs font-bold flex items-center gap-1.5 hover:brightness-105 cursor-pointer shadow-md shadow-[#c5a059]/20"
+                type="button"
+                onClick={handleTestConnection}
+                disabled={isTesting || !isConfigured}
+                className="px-4 py-2 rounded bg-gradient-to-r from-[#c5a059] to-[#b8860b] text-[#0e1117] text-xs font-bold flex items-center gap-1.5 hover:brightness-105 cursor-pointer shadow-md shadow-[#c5a059]/20 disabled:opacity-50"
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>Save Credentials</span>
+                <span>{isTesting ? 'Verifying Tables...' : 'Test Cloud Connection'}</span>
               </button>
-
-              {url && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUrl('');
-                    setAnonKey('');
-                    saveCustomSupabaseCredentials('', '');
-                    setIsConfigured(false);
-                    setTestResult(null);
-                    showToast('Credentials removed. Switched to local storage.');
-                  }}
-                  className="px-3 py-2 rounded bg-[#0a0d13] border border-[#232c3d] text-gray-400 hover:text-white hover:border-rose-800 text-xs transition-colors cursor-pointer"
-                >
-                  Reset / Clear
-                </button>
-              )}
             </div>
-          </form>
+          </div>
         </div>
 
         {/* Right Column: Fast Database Sync & Quick Tools (5 cols) */}

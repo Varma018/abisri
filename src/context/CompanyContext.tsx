@@ -59,22 +59,15 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
         .channel('yib_company_settings_realtime')
         .on(
           'postgres_changes',
-          { event: '*', schema: 'public', table: 'inquiries', filter: 'id=eq.SYSTEM_COMPANY_SETTINGS' },
+          { event: '*', schema: 'public', table: 'company_settings', filter: 'id=eq.primary' },
           (payload) => {
             const newRow = payload.new as any;
-            if (newRow && newRow.message) {
-              try {
-                const parsed = JSON.parse(newRow.message);
-                if (parsed && typeof parsed === 'object') {
-                  setCompanyInfo((prev) => {
-                    const merged = { ...prev, ...parsed };
-                    saveStoredCompanyInfo(merged);
-                    return merged;
-                  });
-                }
-              } catch (e) {
-                console.warn('[Realtime Settings] Parse error:', e);
-              }
+            if (newRow && newRow.settings && typeof newRow.settings === 'object') {
+              setCompanyInfo((prev) => {
+                const merged = { ...prev, ...newRow.settings };
+                saveStoredCompanyInfo(merged);
+                return merged;
+              });
             }
           }
         )

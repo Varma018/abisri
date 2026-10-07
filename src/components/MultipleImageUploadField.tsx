@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Smartphone, Trash2, Plus, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { processAndCompressImage } from '../utils/imageUtils';
+import { processAndCompressImage, dataUrlToBlob } from '../utils/imageUtils';
+import { uploadImageToSupabaseStorage } from '../services/supabaseService';
 
 interface MultipleImageUploadFieldProps {
   label: string;
@@ -30,7 +31,20 @@ export const MultipleImageUploadField: React.FC<MultipleImageUploadFieldProps> =
         const file = files[i];
         if (file.type.startsWith('image/')) {
           const res = await processAndCompressImage(file, 1280, 0.80);
-          newUrls.push(res.dataUrl);
+          let finalUrl = res.dataUrl;
+
+          // Attempt upload to Supabase Storage
+          try {
+            const blob = dataUrlToBlob(res.dataUrl);
+            const storageRes = await uploadImageToSupabaseStorage(blob, 'projects', 'gallery');
+            if (storageRes.url) {
+              finalUrl = storageRes.url;
+            }
+          } catch (e) {
+            console.warn('[MultipleImageUploadField] Storage upload fallback to dataUrl:', e);
+          }
+
+          newUrls.push(finalUrl);
         }
       }
       onChange([...images, ...newUrls]);

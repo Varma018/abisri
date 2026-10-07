@@ -19,10 +19,13 @@ import {
   UploadCloud,
   BarChart3,
   Instagram,
-  Linkedin
+  Linkedin,
+  Image as ImageIcon,
+  History
 } from 'lucide-react';
-import { CompanyInfo } from '../types';
+import { CompanyInfo, AuditLogEntry } from '../types';
 import { calculateCompletedProjectsCount } from '../utils/statsUtils';
+import { ImageUploadField } from './ImageUploadField';
 
 interface AdminContactTabProps {
   companyInfo: CompanyInfo;
@@ -71,8 +74,46 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
       return;
     }
 
+    // Generate audit entries for changed contact fields
+    const changedLogs: AuditLogEntry[] = [];
+    const trackedFields: Array<{ key: keyof CompanyInfo; label: string }> = [
+      { key: 'phone', label: 'Primary Phone' },
+      { key: 'phoneAlt', label: 'Secondary / Alternate Phone' },
+      { key: 'whatsappNumber', label: 'WhatsApp Number' },
+      { key: 'email', label: 'Official Email' },
+      { key: 'emailProjects', label: 'Projects Email' },
+      { key: 'address', label: 'Official Address' },
+      { key: 'regionalOffice', label: 'Regional Office' },
+    ];
+
+    const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+    const userAgent = typeof navigator !== 'undefined'
+      ? (navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop / PC')
+      : 'Web Client';
+
+    for (const item of trackedFields) {
+      const oldVal = ((companyInfo[item.key] as string) || '').trim();
+      const newVal = ((formData[item.key] as string) || '').trim();
+      if (oldVal && newVal && oldVal !== newVal) {
+        changedLogs.push({
+          id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          timestamp: `${now} IST`,
+          field: item.label,
+          oldValue: oldVal,
+          newValue: newVal,
+          device: userAgent
+        });
+      }
+    }
+
+    const mergedLogs = [...changedLogs, ...(companyInfo.auditLog || [])].slice(0, 30);
+
     try {
-      await onSaveCompanyInfo(formData);
+      const payload: CompanyInfo = {
+        ...formData,
+        auditLog: mergedLogs
+      };
+      await onSaveCompanyInfo(payload);
       setIsDirty(false);
       showToast('Contact details updated & synced to Cloud (Supabase) for all devices!');
     } catch {
@@ -550,6 +591,33 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
             </div>
           </div>
 
+          {/* Footer Background Photo Card */}
+          <div className="bg-[#141b27] border border-[#273449] rounded-sm p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#202a3a]">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#c5a059]" />
+                <h4 className="font-cinzel text-xs sm:text-sm font-bold text-[#f8fafc] uppercase tracking-wider">
+                  Footer Background Photo
+                </h4>
+              </div>
+              <span className="text-[10px] text-[#8c9cae] bg-[#1a2333] px-2.5 py-0.5 rounded border border-[#2e3b50]">
+                Live on Website Footer
+              </span>
+            </div>
+
+            <p className="text-xs text-[#8c9cae] leading-relaxed">
+              Upload an industrial shed, warehouse aerial shot, or on-site photo to display as the background for the website footer.
+            </p>
+
+            <ImageUploadField
+              label="Footer Background Photo (Upload File or Enter URL)"
+              value={formData.footerBgImage || ''}
+              onChange={(val) => handleChange('footerBgImage', val)}
+              aspectRatioLabel="Landscape 16:9 recommended"
+              placeholder="Upload or paste image URL..."
+            />
+          </div>
+
           {/* Bottom Save Action Bar */}
           <div className="p-4 bg-[#141b27] border border-[#273449] rounded-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs text-[#8c9cae]">
@@ -692,6 +760,52 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
         </div>
 
       </form>
+
+      {/* Audit Trail & Change Log Section */}
+      <div className="bg-[#121622] border border-[#222b3d] p-6 rounded-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="font-cinzel text-base font-bold text-[#f8fafc] flex items-center gap-2">
+            <History className="w-4 h-4 text-[#c5a059]" />
+            <span>Contact Modification History & Audit Trail</span>
+          </h3>
+          <span className="text-xs text-[#7e8d9f]">
+            {companyInfo.auditLog && companyInfo.auditLog.length > 0
+              ? `${companyInfo.auditLog.length} recorded update${companyInfo.auditLog.length === 1 ? '' : 's'}`
+              : 'Audit Logger Active'}
+          </span>
+        </div>
+        <p className="text-xs text-[#8c9bb0]">
+          Every change made to contact numbers, official emails, or addresses is logged here with exact timestamp, previous value, new value, and client device.
+        </p>
+
+        {companyInfo.auditLog && companyInfo.auditLog.length > 0 ? (
+          <div className="space-y-2 pt-1 max-h-64 overflow-y-auto pr-1">
+            {companyInfo.auditLog.map((log) => (
+              <div key={log.id} className="p-3 bg-[#151b27] border border-[#232f42] rounded-sm text-xs space-y-1">
+                <div className="flex items-center justify-between text-[#f8fafc]">
+                  <span className="font-semibold text-[#c5a059]">{log.field}</span>
+                  <span className="text-[10px] text-[#78889c] font-mono">{log.timestamp} • {log.device || 'Web Client'}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1">
+                  <div className="text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded border border-rose-500/20 truncate">
+                    <span className="text-gray-400 mr-1">Previous:</span>
+                    <span className="line-through">{log.oldValue}</span>
+                  </div>
+                  <div className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20 truncate">
+                    <span className="text-gray-400 mr-1">Updated To:</span>
+                    <span className="font-semibold">{log.newValue}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-4 bg-[#141a26] border border-[#20293a] rounded-sm text-center text-xs text-[#7c8b9d]">
+            <p className="font-medium text-[#c4cbd8]">Audit logger is listening.</p>
+            <p className="text-[11px] mt-0.5">Whenever someone saves an update to phone numbers or contact details, the previous value, new value, date, time, and device will appear here.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

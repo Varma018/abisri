@@ -1,20 +1,58 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Yards Infra & Builders LLP — Industrial Construction Platform
 
-# Run and deploy your AI Studio app
+Official digital web portal and enterprise administration platform for **Yards Infra and Builders LLP**, an industrial infrastructure and civil engineering firm specializing in:
+- Pre-Engineered Buildings (PEB) & Heavy Structural Steel Erection
+- Industrial Sheds, Factories & Logistics Warehouses
+- Turnkey Infrastructure, Godowns & Civil Contracting
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/07e67304-2608-4a38-9454-2a3b4c0993bc
+## Tech Stack & Architecture
 
-## Run Locally
+- **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide Icons, Vite
+- **Backend & Persistence**: Supabase (PostgreSQL with Row Level Security, Supabase Auth, Supabase Storage, Realtime subscriptions)
+- **Security**: Supabase Auth with Row Level Security (RLS) policies protecting customer inquiries, administrative management endpoints, and storage assets.
 
-**Prerequisites:**  Node.js
+---
 
+## Getting Started Locally
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Prerequisites
+- Node.js (v18+)
+- npm or bun
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Fill in your Supabase project credentials:
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+### 3. Initialize Database Schema & Storage
+1. Open your Supabase Dashboard: [https://supabase.com/dashboard](https://supabase.com/dashboard)
+2. Go to **SQL Editor** -> **New Query**.
+3. Copy the contents of `supabase-schema.sql` and run the script.
+4. This sets up all tables (`inquiries`, `projects`, `team_members`, `gallery`, `company_settings`), Row Level Security policies, indexes, and the `yards-images` storage bucket.
+
+### 4. Run the Development Server
+```bash
+npm run dev
+```
+Visit `http://localhost:3000` in your browser.
+
+---
+
+## Production Build
+```bash
+npm run build
+npm run preview
+```

@@ -159,5 +159,16 @@ export interface CompanyInfo {
   completedProjectsMode?: 'base_plus_added' | 'portfolio_exact' | 'custom_fixed'; // Counting mode
   instagramUrl?: string; // Instagram profile link
   linkedinUrl?: string; // LinkedIn profile link
+  footerBgImage?: string; // Custom footer background photo
+  auditLog?: AuditLogEntry[]; // Audit trail of contact & settings changes
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  field: string;
+  oldValue: string;
+  newValue: string;
+  device?: string;
 }
 

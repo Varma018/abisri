@@ -23,10 +23,8 @@ export async function fetchInquiriesFromSupabase(): Promise<InquiryItem[] | null
 
     if (!data) return [];
 
-    return data
-      .filter((row: any) => row.id !== 'SYSTEM_COMPANY_SETTINGS' && row.source !== 'system_settings')
-      .map((row: any): InquiryItem => {
-        const dateTime = getInquiryDateTime(row.timestamp, row.created_at);
+    return data.map((row: any): InquiryItem => {
+      const dateTime = getInquiryDateTime(row.timestamp, row.created_at);
       return {
         id: row.id,
         fullName: row.full_name || '',
@@ -413,28 +411,69 @@ export async function deleteGalleryItemFromSupabase(id: string): Promise<boolean
 // CONNECTION TEST & DATA SYNC
 // ==========================================
 
-export async function testSupabaseConnection(): Promise<{ ok: boolean; message: string }> {
+export async function testSupabaseConnection(): Promise<{ 
+  ok: boolean; 
+  message: string;
+  details?: {
+    inquiries: boolean;
+    projects: boolean;
+    teamMembers: boolean;
+    gallery: boolean;
+    companySettings: boolean;
+  }
+}> {
   const client = getSupabaseClient();
   if (!client) {
     return { ok: false, message: 'Supabase URL or Anon Key is missing.' };
   }
 
   try {
-    // Try to query inquiries table or test with a lightweight request
-    const { error } = await client.from('inquiries').select('id').limit(1);
+    const [inqRes, projRes, teamRes, galRes, setRes] = await Promise.all([
+      client.from('inquiries').select('id').limit(1),
+      client.from('projects').select('id').limit(1),
+      client.from('team_members').select('id').limit(1),
+      client.from('gallery').select('id').limit(1),
+      client.from('company_settings').select('id').limit(1),
+    ]);
 
-    if (error) {
-      // If table doesn't exist yet, connection might still be valid but tables missing
-      if (error.message.includes('relation "public.inquiries" does not exist') || error.code === '42P01') {
-        return { 
-          ok: true, 
-          message: 'Connected to Supabase! However, the database tables need to be created using the SQL script.' 
-        };
-      }
-      return { ok: false, message: `Connection error: ${error.message}` };
+    const details = {
+      inquiries: !inqRes.error,
+      projects: !projRes.error,
+      teamMembers: !teamRes.error,
+      gallery: !galRes.error,
+      companySettings: !setRes.error,
+    };
+
+    const readyTables = [];
+    const missingTables = [];
+
+    if (details.inquiries) readyTables.push('inquiries'); else missingTables.push('inquiries');
+    if (details.projects) readyTables.push('projects'); else missingTables.push('projects');
+    if (details.teamMembers) readyTables.push('team_members'); else missingTables.push('team_members');
+    if (details.gallery) readyTables.push('gallery'); else missingTables.push('gallery');
+    if (details.companySettings) readyTables.push('company_settings'); else missingTables.push('company_settings');
+
+    if (missingTables.length === 0) {
+      return { 
+        ok: true, 
+        message: 'All 5 tables are connected, healthy, and verified (inquiries, projects, team_members, gallery, company_settings).',
+        details 
+      };
     }
 
-    return { ok: true, message: 'Successfully connected to Supabase database!' };
+    if (readyTables.length > 0) {
+      return {
+        ok: true,
+        message: `Connected to Supabase! Active tables: ${readyTables.join(', ')}. Missing tables: ${missingTables.join(', ')}. Run the SQL schema to create missing tables.`,
+        details
+      };
+    }
+
+    return { 
+      ok: false, 
+      message: 'Connected to Supabase, but database tables need to be created using the SQL Editor.',
+      details 
+    };
   } catch (err: any) {
     return { ok: false, message: err?.message || 'Network error connecting to Supabase.' };
   }
@@ -512,7 +551,6 @@ export async function fetchCompanyInfoFromSupabase(): Promise<CompanyInfo | null
   const client = getSupabaseClient();
   if (!client) return null;
 
-  // 1. Try dedicated company_settings table if it exists
   try {
     const { data, error } = await client
       .from('company_settings')
@@ -523,30 +561,8 @@ export async function fetchCompanyInfoFromSupabase(): Promise<CompanyInfo | null
     if (!error && data && data.settings) {
       return data.settings as CompanyInfo;
     }
-  } catch {
-    // Ignore error if table is not yet created
-  }
-
-  // 2. Query universal system settings record in inquiries table
-  try {
-    const { data: inqData, error: inqError } = await client
-      .from('inquiries')
-      .select('*')
-      .eq('id', 'SYSTEM_COMPANY_SETTINGS')
-      .maybeSingle();
-
-    if (!inqError && inqData && inqData.message) {
-      try {
-        const parsed = JSON.parse(inqData.message);
-        if (parsed && typeof parsed === 'object') {
-          return parsed as CompanyInfo;
-        }
-      } catch (parseErr) {
-        console.warn('[Supabase] Failed to parse company settings payload:', parseErr);
-      }
-    }
   } catch (err) {
-    console.warn('[Supabase] Error reading company settings fallback:', err);
+    console.warn('[Supabase] Error reading company_settings table:', err);
   }
 
   return null;
@@ -556,37 +572,6 @@ export async function saveCompanyInfoToSupabase(info: CompanyInfo): Promise<bool
   const client = getSupabaseClient();
   if (!client) return false;
 
-  let success = false;
-
-  // 1. Primary: Save to inquiries table under reserved system ID (guaranteed available on Supabase)
-  try {
-    const { error: inqError } = await client
-      .from('inquiries')
-      .upsert({
-        id: 'SYSTEM_COMPANY_SETTINGS',
-        full_name: info.name || 'Yards Infra Settings',
-        phone_number: info.phone || '',
-        email: info.email || '',
-        project_type: info.shortName || 'Yards Infra',
-        project_location: info.address || '',
-        estimated_budget: info.reraReg || '',
-        message: JSON.stringify(info),
-        timestamp: new Date().toISOString(),
-        source: 'system_settings',
-        status: 'System',
-        created_at: new Date().toISOString(),
-      }, { onConflict: 'id' });
-
-    if (!inqError) {
-      success = true;
-    } else {
-      console.warn('[Supabase] Inquiries settings fallback upsert error:', inqError.message);
-    }
-  } catch (err) {
-    console.error('[Supabase] Error saving company settings to inquiries table:', err);
-  }
-
-  // 2. Secondary: Also save to company_settings table if it was created
   try {
     const { error } = await client
       .from('company_settings')
@@ -595,13 +580,82 @@ export async function saveCompanyInfoToSupabase(info: CompanyInfo): Promise<bool
         { onConflict: 'id' }
       );
 
-    if (!error) {
-      success = true;
+    if (error) {
+      console.warn('[Supabase] Failed to save company settings:', error.message);
+      return false;
     }
-  } catch {
-    // Ignore error if table not yet created in Supabase
+    return true;
+  } catch (err) {
+    console.error('[Supabase] Error saving company settings:', err);
+    return false;
+  }
+}
+
+// ==========================================
+// SUPABASE STORAGE SERVICE (Image Hosting)
+// ==========================================
+
+export async function uploadImageToSupabaseStorage(
+  file: File | Blob,
+  folder: 'projects' | 'gallery' | 'team' = 'gallery',
+  fileNamePrefix: string = 'img'
+): Promise<{ url: string | null; error: string | null }> {
+  const client = getSupabaseClient();
+  if (!client) {
+    return { url: null, error: 'Supabase client is not configured.' };
   }
 
-  return success;
+  try {
+    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    const path = `${folder}/${fileNamePrefix}_${timestamp}_${random}.${ext}`;
+
+    const { data, error } = await client.storage
+      .from('yards-images')
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || 'image/jpeg',
+      });
+
+    if (error) {
+      console.warn('[Supabase Storage] Upload error:', error.message);
+      return { url: null, error: error.message };
+    }
+
+    const { data: publicUrlData } = client.storage
+      .from('yards-images')
+      .getPublicUrl(data.path);
+
+    return { url: publicUrlData.publicUrl, error: null };
+  } catch (err: any) {
+    console.error('[Supabase Storage] Unexpected upload error:', err);
+    return { url: null, error: err?.message || 'Storage upload failed' };
+  }
 }
+
+// ==========================================
+// SUPABASE AUTHENTICATION SERVICE (ADMIN)
+// ==========================================
+
+export async function signInAdmin(email: string, password: string) {
+  const client = getSupabaseClient();
+  if (!client) throw new Error('Supabase client is not configured.');
+  return await client.auth.signInWithPassword({ email, password });
+}
+
+export async function signOutAdmin() {
+  const client = getSupabaseClient();
+  if (!client) return { error: null };
+  return await client.auth.signOut();
+}
+
+export async function getCurrentAdminSession() {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data } = await client.auth.getSession();
+  return data.session;
+}
+
 

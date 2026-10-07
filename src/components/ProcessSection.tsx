@@ -48,12 +48,12 @@ export const ProcessSection: React.FC<ProcessSectionProps> = () => {
             Our Construction Process
           </h2>
           <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-            A structured, transparent six-stage execution roadmap designed to guarantee on-time delivery, structural excellence, and complete budget control.
+            A structured, transparent four-stage execution roadmap designed to guarantee on-time delivery, structural excellence, and complete budget control.
           </p>
         </div>
 
-        {/* 6 Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
+        {/* 4 Steps Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-14">
           {PROCESS_STEPS.map((step, idx) => (
             <div
               key={step.stepNumber}

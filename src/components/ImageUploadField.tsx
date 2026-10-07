@@ -12,7 +12,8 @@ import {
   ExternalLink,
   Plus
 } from 'lucide-react';
-import { processAndCompressImage, ProcessedImageResult } from '../utils/imageUtils';
+import { processAndCompressImage, ProcessedImageResult, dataUrlToBlob } from '../utils/imageUtils';
+import { uploadImageToSupabaseStorage } from '../services/supabaseService';
 
 interface ImageUploadFieldProps {
   label: string;
@@ -57,6 +58,25 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     try {
       const result = await processAndCompressImage(file, 1400, 0.82);
       setCompressInfo(result);
+
+      // Attempt upload to Supabase Storage for clean CDN URL
+      try {
+        const blob = dataUrlToBlob(result.dataUrl);
+        const folder = label.toLowerCase().includes('project') 
+          ? 'projects' 
+          : label.toLowerCase().includes('team') 
+            ? 'team' 
+            : 'gallery';
+        const storageRes = await uploadImageToSupabaseStorage(blob, folder, 'upload');
+        if (storageRes.url) {
+          onChange(storageRes.url);
+          return;
+        }
+      } catch (uploadErr) {
+        console.warn('[ImageUploadField] Storage upload fallback to dataUrl:', uploadErr);
+      }
+
+      // Fallback to optimized data URL
       onChange(result.dataUrl);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to process image. Please try another.');

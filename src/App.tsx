@@ -9,7 +9,6 @@ import { ProjectsSection } from './components/ProjectsSection';
 import { WhyChooseUsSection } from './components/WhyChooseUsSection';
 import { ProcessSection } from './components/ProcessSection';
 import { SafetyInPEBSection } from './components/SafetyInPEBSection';
-import { TestimonialsSection } from './components/TestimonialsSection';
 import { CTASection } from './components/CTASection';
 import { ContactSection } from './components/ContactSection';
 import { WhatsAppButton } from './components/WhatsAppButton';
@@ -19,8 +18,12 @@ import { ServiceModal } from './components/ServiceModal';
 import { AboutModal } from './components/AboutModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { EmailModal } from './components/EmailModal';
-import { AdminPortal } from './components/AdminPortal';
 import { GallerySection } from './components/GallerySection';
+
+// Lazy-load AdminPortal to keep initial bundle size lightweight for public visitors
+const AdminPortal = React.lazy(() => 
+  import('./components/AdminPortal').then(module => ({ default: module.AdminPortal }))
+);
 import { ProjectItem, ServiceItem, TeamMember, NavView, InquiryItem, GalleryItem } from './types';
 import { PROJECTS_DATA, INITIAL_TEAM_MEMBERS } from './data/companyData';
 import { useCompanyInfo } from './context/CompanyContext';
@@ -84,9 +87,17 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
           return parsed.map((p: ProjectItem) => {
-            const sanitizedImage = p.image?.includes('photo-1541888946425-d0fbb18615f8')
-              ? 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop'
-              : p.image;
+            let sanitizedImage = p.image;
+            if (p.id === 'industrial-shed-hyderabad' && (!p.image || p.image.includes('photo-1504307651254'))) {
+              sanitizedImage = '/projects/industrial-shed-hyderabad.jpg';
+            } else if (p.id === 'logistics-warehouse-telangana' && (!p.image || p.image.includes('photo-1586528116311'))) {
+              sanitizedImage = '/projects/logistics-warehouse-telangana.jpg';
+            } else if (p.id === 'peb-structure-ap' && (!p.image || p.image.includes('photo-1581092160607') || p.image.includes('photo-1541888946425'))) {
+              sanitizedImage = '/projects/peb-structure-ap.jpg';
+            } else if (p.id === 'industrial-facility-telangana' && (!p.image || p.image.includes('photo-1486406146926'))) {
+              sanitizedImage = '/projects/industrial-facility-telangana.jpg';
+            }
+
             const sanitizedGallery = p.galleryImages?.map((g: string) => 
               g?.includes('photo-1541888946425-d0fbb18615f8')
                 ? 'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop'
@@ -388,30 +399,41 @@ export default function App() {
     }, 150);
   };
 
-  // If Admin view is active, display the full admin portal
+  // If Admin view is active, display the full admin portal (lazy loaded)
   if (currentView === 'admin') {
     return (
-      <AdminPortal
-        projects={projects}
-        teamMembers={teamMembers}
-        inquiries={inquiries}
-        galleryItems={galleryItems}
-        onAddProject={handleAddProject}
-        onUpdateProject={handleUpdateProject}
-        onDeleteProject={handleDeleteProject}
-        onAddTeamMember={handleAddTeamMember}
-        onUpdateTeamMember={handleUpdateTeamMember}
-        onDeleteTeamMember={handleDeleteTeamMember}
-        onAddGalleryItem={handleAddGalleryItem}
-        onUpdateGalleryItem={handleUpdateGalleryItem}
-        onDeleteGalleryItem={handleDeleteGalleryItem}
-        onUpdateInquiryStatus={handleUpdateInquiryStatus}
-        onDeleteInquiry={handleDeleteInquiry}
-        onAddInquiry={handleAddInquiry}
-        onRefreshData={refreshFromSupabase}
-        onResetDefaults={handleResetDefaults}
-        onExitAdmin={() => navigateTo('home')}
-      />
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen bg-[#0a0d13] text-[#f8fafc] flex flex-col items-center justify-center p-6 space-y-4">
+            <div className="w-10 h-10 border-2 border-[#c5a059] border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs uppercase tracking-widest text-[#c5a059] font-bold">
+              Loading Executive Admin Portal...
+            </p>
+          </div>
+        }
+      >
+        <AdminPortal
+          projects={projects}
+          teamMembers={teamMembers}
+          inquiries={inquiries}
+          galleryItems={galleryItems}
+          onAddProject={handleAddProject}
+          onUpdateProject={handleUpdateProject}
+          onDeleteProject={handleDeleteProject}
+          onAddTeamMember={handleAddTeamMember}
+          onUpdateTeamMember={handleUpdateTeamMember}
+          onDeleteTeamMember={handleDeleteTeamMember}
+          onAddGalleryItem={handleAddGalleryItem}
+          onUpdateGalleryItem={handleUpdateGalleryItem}
+          onDeleteGalleryItem={handleDeleteGalleryItem}
+          onUpdateInquiryStatus={handleUpdateInquiryStatus}
+          onDeleteInquiry={handleDeleteInquiry}
+          onAddInquiry={handleAddInquiry}
+          onRefreshData={refreshFromSupabase}
+          onResetDefaults={handleResetDefaults}
+          onExitAdmin={() => navigateTo('home')}
+        />
+      </React.Suspense>
     );
   }
 
@@ -544,21 +566,16 @@ export default function App() {
                       <div className="relative h-48 overflow-hidden">
                         <img
                           src={photo.imageUrl}
-                          alt={photo.title}
+                          alt={photo.title || 'Construction Photo'}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.src.includes('4ad0cb36-c349-4aa2-a32d-cbb461b80de7.jpeg')) {
+                              target.src = '/4ad0cb36-c349-4aa2-a32d-cbb461b80de7.jpeg';
+                            }
+                          }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-70" />
-                        <div className="absolute top-2.5 left-2.5">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-black/60 text-[#E31B23] backdrop-blur-xs border border-white/10">
-                            {photo.category}
-                          </span>
-                        </div>
-                        <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                          <p className="text-xs font-bold font-display line-clamp-1 group-hover:text-red-300 transition-colors">
-                            {photo.title}
-                          </p>
-                        </div>
                       </div>
                     </div>
                   ))}
@@ -575,9 +592,6 @@ export default function App() {
                 </div>
               </div>
             </section>
-
-            {/* Client Testimonials */}
-            <TestimonialsSection />
 
             {/* Call To Action Banner */}
             <CTASection
