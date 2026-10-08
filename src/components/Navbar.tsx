@@ -60,12 +60,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo / Brand Name - Exactly matches user photo */}
+          {/* Logo / Brand Name */}
           <button
             id="brand-logo-btn"
             onClick={() => handleItemClick('home')}
             className="flex items-center group text-left cursor-pointer focus:outline-none py-0.5"
             aria-label="Yards Infra and Builders LLP Home"
+            title="Yards Infra and Builders LLP"
           >
             <YIBLogo size="md" layout="stacked" variant="dark" />
           </button>
@@ -89,23 +90,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </button>
               );
             })}
-
-            {/* Admin Portal Nav Item */}
-            <button
-              id="nav-link-admin"
-              onClick={() => handleItemClick('admin')}
-              className={`text-xs font-semibold px-2.5 py-1.5 rounded border transition-all flex items-center gap-1.5 cursor-pointer relative ${
-                currentView === 'admin'
-                  ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
-                  : 'bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 border-gray-200'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5 text-gray-500" />
-              <span>Admin</span>
-              {unreadInquiriesCount > 0 && (
-                <span className="w-2 h-2 rounded-full bg-[#E31B23] animate-pulse" title={`${unreadInquiriesCount} new inquiries`} />
-              )}
-            </button>
           </nav>
 
           {/* Right Action: Direct Phone Contact */}
@@ -154,25 +138,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {item.label}
               </button>
             ))}
-
-            <button
-              onClick={() => handleItemClick('admin')}
-              className={`text-left text-sm font-semibold py-2.5 flex items-center justify-between border-b border-gray-100 transition-colors ${
-                currentView === 'admin'
-                  ? 'text-[#E31B23]'
-                  : 'text-gray-600 hover:text-[#E31B23]'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-gray-500" />
-                <span>Admin Portal & Inquiries</span>
-              </div>
-              {unreadInquiriesCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-[#E31B23] text-white text-[10px] font-bold">
-                  {unreadInquiriesCount} new
-                </span>
-              )}
-            </button>
           </div>
 
           <div className="pt-2 flex flex-col gap-3">

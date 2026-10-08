@@ -587,16 +587,6 @@ Notes: ${formData.message || 'Consultation requested.'}`;
                       <span>{copiedNotification ? 'Copied to Clipboard!' : 'Copy Summary'}</span>
                     </button>
 
-                    {onOpenAdminInquiries && (
-                      <button
-                        onClick={onOpenAdminInquiries}
-                        className="px-4 py-2 rounded bg-gray-900 text-white hover:bg-[#E31B23] text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Shield className="w-3.5 h-3.5" />
-                        <span>Admin Inbox</span>
-                      </button>
-                    )}
-
                     <button
                       onClick={resetForm}
                       className="px-4 py-2 text-gray-500 hover:text-gray-900 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"

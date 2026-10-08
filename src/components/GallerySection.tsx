@@ -75,16 +75,8 @@ export const GallerySection: React.FC<GallerySectionProps> = ({
             <Camera className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-gray-900">No photos available yet</h3>
             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-              Photos uploaded by the admin will appear here automatically.
+              Photos of recent construction sites and industrial structures will be updated shortly.
             </p>
-            {onOpenAdmin && (
-              <button
-                onClick={onOpenAdmin}
-                className="mt-4 px-4 py-2 rounded bg-[#E31B23] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#c7141b] transition-colors cursor-pointer"
-              >
-                Upload First Photo
-              </button>
-            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">

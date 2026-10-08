@@ -5,7 +5,7 @@ export const COMPANY_INFO: CompanyInfo = {
   shortName: 'Yards Infra',
   monogram: 'YIB',
   tagline: 'Building Tomorrow, Today.',
-  subTagline: 'Your trusted partner for industrial sheds, godowns, PEB erection, structural steel and infrastructure projects.',
+  subTagline: 'Yards Infra delivers professional PEB erection, roofing, industrial sheds, warehouses and structural works with a focus on safety, quality and timely execution.',
   motto: 'Stronger Structures. Brighter Tomorrows.',
   peopleMotto: 'People. Structures. Progress.',
   quote: 'Building structures that support progress, people and possibilities.',
@@ -22,33 +22,41 @@ export const COMPANY_INFO: CompanyInfo = {
   reraReg: 'TS RERA Reg: P02400004921 | ISO 9001:2015 Certified General Contractor',
   whatsappNumber: '918367060444',
   whatsappMessage: 'Hello Yards Infra and Builders LLP, I am interested in your industrial construction services. I would like to discuss my project.',
-  completedProjectsBase: '12',
+  completedProjectsBase: '26+',
   completedProjectsMode: 'base_plus_added',
   instagramUrl: 'https://www.instagram.com/yards_infra?stkn=MTNienliczBwdndmeA==',
   linkedinUrl: 'https://www.linkedin.com/company/yards-infra',
   footerBgImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1600&auto=format&fit=crop',
+  heroCardImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1200&auto=format&fit=crop',
+  heroBgImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=2400&auto=format&fit=crop',
+  aboutImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop',
+  whyChooseImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop',
+  authorizedAdmins: [
+    'srinivasvarmadandu@gmail.com',
+    'projects@yardsinfra.com',
+  ],
 };
 
 export const STATS_DATA: StatItem[] = [
   {
     value: '4+',
-    label: 'Years of Experience',
-    description: 'Over 4 years of engineering mastery, steel erection, and industrial infrastructure across India.',
+    label: 'Years of Industry Experience',
+    description: 'Over 4 years of proven civil engineering mastery, steel erection, and industrial infrastructure execution across India.',
   },
   {
-    value: '12',
-    label: 'Projects Completed',
+    value: '26+',
+    label: 'Projects Executed',
     description: 'Delivered large-span industrial sheds, logistics godowns, PEB warehouses, and heavy structural frameworks.',
   },
   {
-    value: '100%',
-    label: 'Quality Commitment',
-    description: 'Strict 140-point quality audit checklist, high-grade steel fabrication, and certified weld testing.',
+    value: '2.5M+',
+    label: 'Sq. Ft. of Structures Executed',
+    description: 'Over 2.5 million square feet of robust pre-engineered buildings and industrial roofing built to IS 800:2007 standards.',
   },
   {
-    value: '24/7',
-    label: 'Client Support',
-    description: 'Dedicated site project managers, live milestone tracking, and rapid on-ground response.',
+    value: '100%',
+    label: 'Safety-Focused Execution',
+    description: 'Strict on-site safety protocols, certified rigging, PPE enforcement, and zero-compromise structural integrity.',
   },
 ];
 
@@ -330,46 +338,46 @@ export const PROJECTS_DATA: ProjectItem[] = [
 
 export const WHY_CHOOSE_US_DATA: WhyChooseUsItem[] = [
   {
-    id: 'safety-first',
-    title: 'Safety First',
-    description: 'We follow strict safety standards at every stage of construction. Zero-harm workplace culture with certified rigging and protective protocols.',
-    metric: 'Zero-Harm Site Record',
+    id: 'safety-driven-execution',
+    title: 'Safety-Driven Execution',
+    description: 'Every site activity follows structured safety practices.',
+    metric: 'Zero-Harm Safety Protocol',
     iconName: 'ShieldCheck'
   },
   {
-    id: 'quality-construction',
-    title: 'Quality Construction',
-    description: 'We focus on durability, functionality and attention to detail. Every structural weld, bolt torque, and concrete batch undergoes rigorous inspection.',
-    metric: '140-Point Quality Check',
-    iconName: 'Award'
-  },
-  {
-    id: 'experienced-team',
-    title: 'Experienced Team',
-    description: 'Skilled professionals with hands-on industry experience. Certified structural engineers, steel fabricators, and on-site project supervisors.',
-    metric: '25+ Technical Engineers',
+    id: 'experienced-workforce',
+    title: 'Experienced Workforce',
+    description: 'Skilled teams experienced in PEB erection and industrial works.',
+    metric: 'Certified Riggers & Fitters',
     iconName: 'Users'
   },
   {
-    id: 'timely-delivery',
-    title: 'Timely Delivery',
-    description: 'Efficient planning and execution to keep your project on track. We adhere to transparent milestone schedules and critical-path management.',
-    metric: '98.5% On-Time Delivery',
+    id: 'on-time-execution',
+    title: 'On-Time Execution',
+    description: 'Planned manpower and site coordination to meet project schedules.',
+    metric: 'Milestone Adherence',
     iconName: 'Clock'
   },
   {
-    id: 'cost-effective-solutions',
-    title: 'Cost-Effective Solutions',
-    description: 'Practical and value-driven approach without compromising on quality. Transparent itemized estimates and optimal steel tonnage designs.',
-    metric: 'Value-Optimized Engineering',
-    iconName: 'HeartHandshake'
+    id: 'quality-workmanship',
+    title: 'Quality Workmanship',
+    description: 'Attention to alignment, connections, roofing and finishing.',
+    metric: 'IS 800:2007 Standards',
+    iconName: 'Award'
   },
   {
-    id: 'client-centric-approach',
-    title: 'Client-Centric Approach',
-    description: 'We build long-term relationships based on trust and performance. Dedicated project liaisons and transparent milestone reporting.',
-    metric: '100% Client Commitment',
-    iconName: 'Eye'
+    id: 'project-ready-teams',
+    title: 'Project-Ready Teams',
+    description: 'Deployment capability based on project requirements.',
+    metric: 'Rapid Site Mobilisation',
+    iconName: 'Briefcase'
+  },
+  {
+    id: 'transparent-coordination',
+    title: 'Transparent Coordination',
+    description: 'Clear communication from mobilisation to completion.',
+    metric: 'Direct Project Updates',
+    iconName: 'MessageSquare'
   }
 ];
 

@@ -47,6 +47,18 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
     }
   }, [prefilledScope]);
 
+  // Handle Escape key to cancel/close
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleResetAndClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !email.trim()) return;
@@ -103,29 +115,40 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={handleResetAndClose}
+    >
       <div 
-        className="relative w-full max-w-xl bg-white border border-gray-200 rounded shadow-2xl overflow-hidden my-8"
+        className="relative w-full max-w-xl max-h-[92vh] flex flex-col bg-white border border-gray-200 rounded-lg shadow-2xl overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
+        {/* Sticky Header - Always Visible */}
+        <div className="shrink-0 sticky top-0 z-20 flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-200 bg-gray-50/98 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#E31B23]" />
-            <span className="text-sm font-bold tracking-wider uppercase text-gray-900 font-display">
-              Request Project Quote & Feasibility
-            </span>
+            <div>
+              <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-gray-950 font-display">
+                Request Project Quote & Feasibility
+              </span>
+              <p className="text-[11px] text-gray-500 font-normal">
+                Direct consultation with Yards Infra structural engineers
+              </p>
+            </div>
           </div>
           <button
-            onClick={onClose}
-            className="p-1.5 rounded text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
-            aria-label="Close quote modal"
+            type="button"
+            onClick={handleResetAndClose}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-700 hover:text-gray-950 hover:bg-gray-200 transition-colors cursor-pointer border border-gray-300 bg-white shadow-xs text-xs font-bold"
+            aria-label="Cancel and close quote modal"
+            title="Cancel and close quote modal (Esc)"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 text-gray-700" />
+            <span>Cancel</span>
           </button>
         </div>
 
-        <div className="p-6 sm:p-8">
+        <div className="p-5 sm:p-7 overflow-y-auto flex-1">
           {isSubmitted ? (
             <div className="py-6 text-center space-y-4 animate-in fade-in">
               <div className="w-14 h-14 rounded-full bg-emerald-100 border border-emerald-500 flex items-center justify-center mx-auto text-emerald-600">
@@ -304,11 +327,18 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
                 allowCamera={true}
               />
 
-              <div className="pt-2">
+              <div className="pt-3 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetAndClose}
+                  className="w-full sm:w-auto px-5 py-3.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-950 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer text-center border border-gray-300"
+                >
+                  Cancel Quote
+                </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 rounded bg-[#E31B23] hover:bg-[#C7141B] text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="flex-1 w-full py-3.5 rounded bg-[#E31B23] hover:bg-[#C7141B] text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <span>Submitting Request...</span>
@@ -320,6 +350,10 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
                   )}
                 </button>
               </div>
+
+              <p className="text-center text-[11px] text-gray-400 pt-1">
+                Press <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700 font-mono text-[10px]">Esc</kbd> or click outside to cancel at any time.
+              </p>
             </form>
           )}
         </div>

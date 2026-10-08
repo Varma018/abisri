@@ -21,10 +21,22 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     }
   }, [project?.id, project?.image]);
 
+  React.useEffect(() => {
+    if (!project) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [project, onClose]);
+
   if (!project) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
       <div 
         className="relative w-full max-w-4xl bg-white border border-gray-200 rounded shadow-2xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}

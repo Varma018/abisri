@@ -13,15 +13,15 @@ export function calculateCompletedProjectsCount(
   companyInfo?: Partial<CompanyInfo>
 ): string {
   const mode = companyInfo?.completedProjectsMode || 'base_plus_added';
-  const customBase = companyInfo?.completedProjectsBase?.trim() || '12';
-  const hasPlus = customBase.includes('+');
+  const customBase = companyInfo?.completedProjectsBase?.trim() || '26+';
+  const hasPlus = customBase.includes('+') || true;
 
   if (mode === 'portfolio_exact') {
     return `${projectsCount}`;
   }
 
   const baseNum = parseInt(customBase.replace(/[^0-9]/g, ''), 10);
-  const validBase = isNaN(baseNum) ? 12 : baseNum;
+  const validBase = isNaN(baseNum) ? 26 : baseNum;
 
   if (mode === 'custom_fixed') {
     return hasPlus ? `${validBase}+` : `${validBase}`;

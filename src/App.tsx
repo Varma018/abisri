@@ -52,6 +52,58 @@ export default function App() {
   // Navigation View State: 'home' | 'about' | 'services' | 'projects' | 'why-us' | 'contact' | 'admin'
   const [currentView, setCurrentView] = useState<NavView>('home');
 
+  // Discreet Admin Access: Listen for URL #admin, ?admin, or shortcut Ctrl+Shift+A
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      if (
+        hash === '#admin' ||
+        hash === '#/admin' ||
+        search.includes('admin') ||
+        path.endsWith('/admin')
+      ) {
+        setCurrentView('admin');
+      }
+    };
+
+    checkAdminRoute();
+    window.addEventListener('hashchange', checkAdminRoute);
+    window.addEventListener('popstate', checkAdminRoute);
+
+    // Multiple shortcut listeners for staff:
+    // 1. Alt + A (works in all browsers without Chrome tab search collision)
+    // 2. Alt + L (Login)
+    // 3. Ctrl + Shift + A / Cmd + Shift + A
+    // 4. Ctrl + Shift + L
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isA = e.key === 'a' || e.key === 'A' || e.code === 'KeyA';
+      const isL = e.key === 'l' || e.key === 'L' || e.code === 'KeyL';
+
+      const matchAltA = e.altKey && isA;
+      const matchAltL = e.altKey && isL;
+      const matchCtrlShiftA = (e.ctrlKey || e.metaKey) && e.shiftKey && isA;
+      const matchCtrlShiftL = (e.ctrlKey || e.metaKey) && e.shiftKey && isL;
+
+      if (matchAltA || matchAltL || matchCtrlShiftA || matchCtrlShiftL) {
+        e.preventDefault();
+        e.stopPropagation();
+        setCurrentView('admin');
+        window.location.hash = 'admin';
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keydown', handleKeyDown, true);
+
+    return () => {
+      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('popstate', checkAdminRoute);
+      window.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, []);
+
   // Modals state
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
@@ -356,6 +408,11 @@ export default function App() {
   // Navigation Helper
   const navigateTo = (view: NavView) => {
     setCurrentView(view);
+    if (view === 'admin') {
+      window.location.hash = 'admin';
+    } else if (window.location.hash.toLowerCase().includes('admin')) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -454,7 +511,10 @@ export default function App() {
         {currentView === 'home' && (
           <div className="animate-in fade-in duration-200">
             {/* Hero Section */}
-            <HeroSection />
+            <HeroSection
+              onOpenConsultation={() => handleOpenConsultation()}
+              onViewProjects={() => navigateTo('projects')}
+            />
 
             {/* Engineering Stats */}
             <StatsSection projectsCount={projects.length} />
@@ -530,6 +590,12 @@ export default function App() {
                 </div>
               </div>
             </section>
+
+            {/* Why Yards Infra Section */}
+            <WhyChooseUsSection 
+              onOpenConsultation={() => handleOpenConsultation()}
+              onViewProjects={() => navigateTo('projects')}
+            />
 
             {/* Safety in PEB Section */}
             <SafetyInPEBSection />
@@ -607,7 +673,6 @@ export default function App() {
           <AboutPage
             teamMembers={teamMembers}
             onOpenConsultation={() => navigateTo('contact')}
-            onOpenAdmin={() => navigateTo('admin')}
             onOpenEmail={(email, name) => handleOpenEmail(email, name)}
           />
         )}
@@ -627,7 +692,6 @@ export default function App() {
             isStandalonePage={true}
             projects={projects}
             onSelectProject={(project) => setSelectedProject(project)}
-            onOpenAdmin={() => navigateTo('admin')}
           />
         )}
 
@@ -636,7 +700,6 @@ export default function App() {
           <GallerySection
             galleryItems={galleryItems}
             isStandalonePage={true}
-            onOpenAdmin={() => navigateTo('admin')}
             onOpenConsultation={() => handleOpenConsultation()}
           />
         )}
@@ -654,7 +717,6 @@ export default function App() {
           <ContactSection 
             isStandalonePage={true} 
             onInquirySubmitted={handleAddInquiry}
-            onOpenAdminInquiries={() => navigateTo('admin')}
             onOpenEmail={() => handleOpenEmail()}
           />
         )}

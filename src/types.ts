@@ -160,6 +160,11 @@ export interface CompanyInfo {
   instagramUrl?: string; // Instagram profile link
   linkedinUrl?: string; // LinkedIn profile link
   footerBgImage?: string; // Custom footer background photo
+  heroCardImage?: string; // Showcase photo on Homepage Hero section card
+  heroBgImage?: string; // Background photo for Homepage Hero section
+  aboutImage?: string; // Main photo in About Us section
+  whyChooseImage?: string; // Showcase photo in Why Yards Infra section
+  authorizedAdmins?: string[]; // Registered authorized administrator emails
   auditLog?: AuditLogEntry[]; // Audit trail of contact & settings changes
 }
 

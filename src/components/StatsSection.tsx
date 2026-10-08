@@ -19,7 +19,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ projectsCount = 6 })
       <div className="bg-white border border-gray-200 rounded p-6 sm:p-8 shadow-md">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-y lg:divide-y-0 lg:divide-x divide-gray-200">
           {STATS_DATA.map((stat, idx) => {
-            const isCompletedProjects = stat.label.toLowerCase().includes('projects completed');
+            const isCompletedProjects = stat.label.toLowerCase().includes('projects');
             const displayValue = isCompletedProjects ? completedProjectsValue : stat.value;
 
             return (

@@ -546,7 +546,7 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
                   className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none cursor-pointer"
                 >
                   <option value="base_plus_added">
-                    Auto-Increment: Base ({formData.completedProjectsBase || '12'}) + Added Projects
+                    Auto-Increment: Base ({formData.completedProjectsBase || '26+'}) + Added Projects
                   </option>
                   <option value="portfolio_exact">
                     Strict Portfolio Count: Exact projects in database ({projectsCount})
@@ -566,9 +566,9 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={formData.completedProjectsBase || '12'}
+                  value={formData.completedProjectsBase || '26+'}
                   onChange={(e) => handleChange('completedProjectsBase' as any, e.target.value)}
-                  placeholder="12"
+                  placeholder="26+"
                   disabled={formData.completedProjectsMode === 'portfolio_exact'}
                   className="w-full px-3 py-2 bg-[#171f2d] border border-[#2a374c] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] placeholder-[#627083] focus:outline-none disabled:opacity-50"
                 />
@@ -589,6 +589,107 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
                 <span className="text-xs text-[#c5a059] uppercase tracking-wider ml-1">Projects Completed</span>
               </div>
             </div>
+          </div>
+
+          {/* SECTION: Homepage Hero Section Showcase Photo Card */}
+          <div id="admin-hero-image-card" className="bg-[#141b27] border border-[#273449] rounded-sm p-6 space-y-4 shadow-xl scroll-mt-24">
+            <div className="flex items-center justify-between pb-3 border-b border-[#202a3a]">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#E31B23]" />
+                <h4 className="font-cinzel text-xs sm:text-sm font-bold text-[#f8fafc] uppercase tracking-wider">
+                  Hero Section Showcase Photo (Homepage)
+                </h4>
+              </div>
+              <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded border border-emerald-800/40">
+                Front Hero Card
+              </span>
+            </div>
+
+            <p className="text-xs text-[#8c9cae] leading-relaxed">
+              This photo appears inside the main project showcase card in the Hero section on the homepage (with the "ON-SITE PEB ERECTION" badge). Upload directly from your mobile phone gallery, snap live with your mobile camera, or paste a high-resolution image URL.
+            </p>
+
+            <ImageUploadField
+              label="Hero Showcase Photograph (Mobile Gallery, Camera, or Image URL)"
+              value={formData.heroCardImage || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1200&auto=format&fit=crop'}
+              onChange={(val) => handleChange('heroCardImage', val)}
+              aspectRatioLabel="Landscape 4:3 or 16:9 recommended"
+              placeholder="Upload from mobile or paste photo URL..."
+              allowCamera={true}
+              helperText="Upload photo directly from mobile phone camera or photo gallery"
+              presetImages={[
+                { label: 'PEB Construction Site', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1200&auto=format&fit=crop' },
+                { label: 'Industrial Warehouse Steel', url: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop' },
+                { label: 'Heavy Steel Framing', url: 'https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1200&auto=format&fit=crop' },
+                { label: 'Roof Sheeting & Erection', url: 'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop' }
+              ]}
+            />
+          </div>
+
+          {/* SECTION: About Us Section Photo */}
+          <div className="bg-[#141b27] border border-[#273449] rounded-sm p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#202a3a]">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#c5a059]" />
+                <h4 className="font-cinzel text-xs sm:text-sm font-bold text-[#f8fafc] uppercase tracking-wider">
+                  About Section Photo (Inspection &amp; PEB Rigging)
+                </h4>
+              </div>
+              <span className="text-[10px] text-blue-400 bg-blue-950/60 px-2.5 py-0.5 rounded border border-blue-800/40">
+                About Section
+              </span>
+            </div>
+
+            <p className="text-xs text-[#8c9cae] leading-relaxed">
+              Upload from mobile or computer to change the photo next to "Built on Values. Driven by Purpose." in the About section.
+            </p>
+
+            <ImageUploadField
+              label="About Section Photograph"
+              value={formData.aboutImage || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop'}
+              onChange={(val) => handleChange('aboutImage', val)}
+              aspectRatioLabel="Landscape or Portrait"
+              placeholder="Upload from mobile or paste photo URL..."
+              allowCamera={true}
+              helperText="Upload photo directly from mobile camera or gallery"
+              presetImages={[
+                { label: 'Site Inspection Rigging', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop' },
+                { label: 'Engineers on Site', url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1600&auto=format&fit=crop' }
+              ]}
+            />
+          </div>
+
+          {/* SECTION: Why Yards Infra Section Photo */}
+          <div className="bg-[#141b27] border border-[#273449] rounded-sm p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#202a3a]">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-emerald-400" />
+                <h4 className="font-cinzel text-xs sm:text-sm font-bold text-[#f8fafc] uppercase tracking-wider">
+                  "Why Yards Infra?" Section Photo
+                </h4>
+              </div>
+              <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded border border-emerald-800/40">
+                Why Us Banner
+              </span>
+            </div>
+
+            <p className="text-xs text-[#8c9cae] leading-relaxed">
+              Upload from mobile to change the execution showcase photo in the "Why Yards Infra?" section.
+            </p>
+
+            <ImageUploadField
+              label="Why Yards Infra Feature Photo"
+              value={formData.whyChooseImage || 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop'}
+              onChange={(val) => handleChange('whyChooseImage', val)}
+              aspectRatioLabel="Landscape 16:9"
+              placeholder="Upload from mobile or paste photo URL..."
+              allowCamera={true}
+              helperText="Upload photo directly from mobile phone camera or gallery"
+              presetImages={[
+                { label: 'Heavy Steel Erection', url: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop' },
+                { label: 'PEB Framework Site', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop' }
+              ]}
+            />
           </div>
 
           {/* Footer Background Photo Card */}
@@ -730,6 +831,38 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
                   <div className="flex items-center gap-2 pt-1 border-t border-[#18212e] text-[10px] text-[#78889c]">
                     <Clock className="w-3 h-3 text-[#c5a059]" />
                     <span>{formData.workingHours}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Hero Showcase Photo Card Preview */}
+              <div className="space-y-2 pt-2 border-t border-[#1c2434]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wider text-[#738295] font-semibold block">
+                    Homepage Hero Card Preview:
+                  </span>
+                  <span className="text-[9px] text-[#c5a059] font-mono">Live Sync</span>
+                </div>
+                <div className="relative rounded overflow-hidden border border-[#2a374c] bg-gray-950 shadow-md aspect-video">
+                  <img
+                    src={formData.heroCardImage || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1200&auto=format&fit=crop'}
+                    alt="Hero Preview"
+                    className="w-full h-full object-cover object-center"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1200&auto=format&fit=crop';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent pointer-events-none" />
+                  <div className="absolute top-2 left-2 flex items-center gap-1 pointer-events-none">
+                    <span className="px-2 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold uppercase flex items-center gap-1 border border-white/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]" />
+                      <span>On-Site PEB Erection</span>
+                    </span>
+                  </div>
+                  <div className="absolute bottom-2 left-2 right-2 text-white pointer-events-none">
+                    <p className="text-[11px] font-bold leading-tight font-display drop-shadow">
+                      Industrial Structures. Built to Perform.
+                    </p>
                   </div>
                 </div>
               </div>

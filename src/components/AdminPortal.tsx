@@ -32,7 +32,8 @@ import {
   CheckCircle2,
   Clock,
   User as UserIcon,
-  Key
+  Key,
+  Smartphone
 } from 'lucide-react';
 import { getSupabaseClient } from '../lib/supabase';
 import { ProjectItem, TeamMember, InquiryItem, GalleryItem } from '../types';
@@ -41,6 +42,7 @@ import { AdminInquiriesTab } from './AdminInquiriesTab';
 import { AdminDatabaseTab } from './AdminDatabaseTab';
 import { AdminContactTab } from './AdminContactTab';
 import { AdminGalleryTab } from './AdminGalleryTab';
+import { AdminPhotosTab } from './AdminPhotosTab';
 import { ImageUploadField } from './ImageUploadField';
 import { MultipleImageUploadField } from './MultipleImageUploadField';
 import { useCompanyInfo } from '../context/CompanyContext';
@@ -51,7 +53,7 @@ interface AdminPortalProps {
   teamMembers: TeamMember[];
   inquiries: InquiryItem[];
   galleryItems?: GalleryItem[];
-  initialTab?: 'projects' | 'gallery' | 'team' | 'inquiries' | 'contact' | 'database' | 'info';
+  initialTab?: 'projects' | 'gallery' | 'photos' | 'team' | 'inquiries' | 'contact' | 'database' | 'info';
   onAddProject: (project: ProjectItem) => void;
   onUpdateProject: (project: ProjectItem) => void;
   onDeleteProject: (projectId: string) => void;
@@ -101,6 +103,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   // New password update in settings
   const [newCustomPassword, setNewCustomPassword] = useState('');
@@ -116,6 +119,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Live Company Contact Details from Context
   const { companyInfo, updateCompanyInfo, resetCompanyInfo, isSaving: isSavingCompanyInfo } = useCompanyInfo();
+
+  // Verified Administrator Authorization Helpers
+  const getAuthorizedAdmins = (): string[] => {
+    const list = companyInfo.authorizedAdmins && companyInfo.authorizedAdmins.length > 0
+      ? companyInfo.authorizedAdmins
+      : ['srinivasvarmadandu@gmail.com', 'projects@yardsinfra.com'];
+    return list.map(e => e.trim().toLowerCase());
+  };
+
+  const isAuthorizedAdmin = (email: string): boolean => {
+    const clean = email.trim().toLowerCase();
+    if (!clean) return false;
+    return getAuthorizedAdmins().includes(clean);
+  };
+
+  // State for adding admin email directly
+  const [quickAuthEmail, setQuickAuthEmail] = useState('');
 
   // Brute-force security protection: 3-minute lockout on invalid credentials
   const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
@@ -250,12 +270,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   // Edit Projects Completed Modal State
   const [isEditCompletedModalOpen, setIsEditCompletedModalOpen] = useState(false);
-  const [completedBaseInput, setCompletedBaseInput] = useState(companyInfo.completedProjectsBase || '12');
+  const [completedBaseInput, setCompletedBaseInput] = useState(companyInfo.completedProjectsBase || '26+');
   const [completedModeInput, setCompletedModeInput] = useState(companyInfo.completedProjectsMode || 'base_plus_added');
   const [isSavingCounter, setIsSavingCounter] = useState(false);
 
   const handleOpenEditCompletedModal = () => {
-    setCompletedBaseInput(companyInfo.completedProjectsBase || '12');
+    setCompletedBaseInput(companyInfo.completedProjectsBase || '26+');
     setCompletedModeInput(companyInfo.completedProjectsMode || 'base_plus_added');
     setIsEditCompletedModalOpen(true);
   };
@@ -265,11 +285,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setIsSavingCounter(true);
     try {
       await updateCompanyInfo({
-        completedProjectsBase: completedBaseInput.trim() || '12',
+        completedProjectsBase: completedBaseInput.trim() || '26+',
         completedProjectsMode: completedModeInput as any
       });
       const newVal = calculateCompletedProjectsCount(projects.length, {
-        completedProjectsBase: completedBaseInput.trim() || '12',
+        completedProjectsBase: completedBaseInput.trim() || '26+',
         completedProjectsMode: completedModeInput as any
       });
       showToast(`Projects Completed counter updated to "${newVal}"!`);
@@ -294,7 +314,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   // Active Admin Section
-  const [adminTab, setAdminTab] = useState<'projects' | 'gallery' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
+  const [adminTab, setAdminTab] = useState<'projects' | 'gallery' | 'photos' | 'team' | 'inquiries' | 'contact' | 'database' | 'info'>(initialTab);
   const [notification, setNotification] = useState<string | null>(null);
 
   // Project Form State
@@ -367,6 +387,28 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
     if (!cleanPass) {
       setAuthError('Please enter your administrator password.');
+      return;
+    }
+
+    // Strict validation: Reject unauthorized emails immediately
+    if (!isAuthorizedAdmin(cleanEmail)) {
+      const nextAttempts = failedAttempts + 1;
+      setFailedAttempts(nextAttempts);
+      try {
+        localStorage.setItem('yib_admin_failed_attempts', String(nextAttempts));
+      } catch {}
+
+      if (nextAttempts >= 3) {
+        const lockoutUntil = Date.now() + 3 * 60 * 1000;
+        try {
+          localStorage.setItem('yib_admin_lockout_until', String(lockoutUntil));
+        } catch {}
+        setLockoutRemaining(180);
+        setAuthError('Access Denied: Unrecognized administrator. Portal is locked for 3 minutes for security.');
+      } else {
+        const remainingAttempts = 3 - nextAttempts;
+        setAuthError(`Access Denied: "${cleanEmail}" is not registered as an authorized administrator. (${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining before 3-minute security lockout)`);
+      }
       return;
     }
 
@@ -443,6 +485,44 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setIsAuthenticated(false);
     setAdminUser(null);
     showToast('Securely signed out of Admin Portal.');
+  };
+
+  const handleForgotPassword = async () => {
+    const cleanEmail = emailInput.trim();
+    if (!cleanEmail) {
+      setAuthError('Please enter your administrator email ID above first, then click "Forgot password?".');
+      return;
+    }
+
+    setAuthError('');
+    setAuthSuccessMsg('');
+
+    // Strict validation: Verify whether email is a registered/authorized administrator
+    if (!isAuthorizedAdmin(cleanEmail)) {
+      setAuthError(`Access Denied: "${cleanEmail}" is not a registered administrator. Password reset is restricted to authorized company administrators only.`);
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      const client = getSupabaseClient();
+      if (!client) {
+        setAuthError('Supabase authentication client is not configured.');
+        return;
+      }
+      const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: window.location.origin
+      });
+      if (error) {
+        setAuthError(error.message);
+      } else {
+        setAuthSuccessMsg(`Password reset instructions sent to ${cleanEmail}. Please check your email inbox (and Spam/Updates folder).`);
+      }
+    } catch (err: any) {
+      setAuthError(err?.message || 'Failed to send password reset link.');
+    } finally {
+      setIsSendingReset(false);
+    }
   };
 
   // Preset Images for Fast Project Creation
@@ -733,9 +813,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
             </div>
 
-            <div className="text-[11px] text-[#78889b] flex items-center gap-1.5 pt-1">
-              <Shield className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Protected by Supabase Auth & Anti-Brute-Force Rate Limiting</span>
+            <div className="flex items-center justify-between text-[11px] pt-1">
+              <div className="text-[#78889b] flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Supabase Auth & Rate Limiting</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={isSendingReset || lockoutRemaining > 0}
+                className="text-[#c5a059] hover:underline hover:text-[#d4af37] disabled:opacity-40 cursor-pointer font-medium"
+              >
+                {isSendingReset ? 'Sending link...' : 'Forgot password?'}
+              </button>
             </div>
 
             {lockoutRemaining > 0 ? (
@@ -879,6 +969,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
 
             <button
+              id="admin-photos-tab-btn"
+              onClick={() => setAdminTab('photos')}
+              className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
+                adminTab === 'photos'
+                  ? 'bg-[#c5a059] text-[#0e1117] shadow-md shadow-[#c5a059]/20 font-bold'
+                  : 'bg-[#131924] text-[#9ca3af] hover:text-[#f8fafc] border border-[#232c3d]'
+              }`}
+            >
+              <Smartphone className="w-4 h-4 text-[#E31B23]" />
+              <span>Website Photos 📸</span>
+            </button>
+
+            <button
               onClick={() => setAdminTab('team')}
               className={`px-4 py-2 rounded-sm text-xs uppercase tracking-wider font-semibold flex items-center gap-2 cursor-pointer transition-all ${
                 adminTab === 'team'
@@ -918,7 +1021,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               }`}
             >
               <PhoneCall className="w-4 h-4" />
-              <span>Contact Details</span>
+              <span>Website & Contacts</span>
             </button>
 
             <button
@@ -949,6 +1052,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              id="admin-change-hero-photo-btn"
+              onClick={() => setAdminTab('photos')}
+              className="px-3.5 py-2 rounded-sm bg-[#16202f] hover:bg-[#202c3e] border border-[#2d3e58] text-[#c5a059] hover:text-[#e4c27a] font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              title="Upload photos from mobile camera, gallery, or URL"
+            >
+              <Camera className="w-3.5 h-3.5 text-[#E31B23]" />
+              <span>Change Photos (Mobile)</span>
+            </button>
             {adminTab === 'projects' && (
               <>
                 <button
@@ -1263,6 +1375,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           />
         )}
 
+        {/* TAB: WEBSITE PHOTOS (MOBILE UPLOAD & SECTION VISUALS) */}
+        {adminTab === 'photos' && (
+          <AdminPhotosTab
+            companyInfo={companyInfo}
+            onSaveCompanyInfo={updateCompanyInfo}
+            isSaving={isSavingCompanyInfo}
+            showToast={showToast}
+          />
+        )}
+
         {/* TAB 3: INQUIRIES & LEADS MANAGEMENT */}
         {adminTab === 'inquiries' && (
           <AdminInquiriesTab
@@ -1567,6 +1689,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                       if (error) {
                         setAddAdminResult({ type: 'error', message: error.message });
                       } else {
+                        // Automatically add to authorizedAdmins and save
+                        const currentList = getAuthorizedAdmins();
+                        if (!currentList.includes(email.toLowerCase())) {
+                          const updated = [...(companyInfo.authorizedAdmins || ['srinivasvarmadandu@gmail.com', 'projects@yardsinfra.com']), email.toLowerCase()];
+                          updateCompanyInfo({ authorizedAdmins: updated });
+                        }
                         setAddAdminResult({
                           type: 'success',
                           message: `Administrator account successfully registered in Supabase Auth for ${email}! They can now log in using this email and password.`
@@ -1625,39 +1753,85 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
 
               {/* Active Administrator Accounts Directory */}
-              <div className="pt-2 space-y-2">
-                <h4 className="text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-[#c5a059]" />
-                  <span>Current Authorized Administrators</span>
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="flex items-center justify-between p-3 bg-[#161d2b] border border-[#263346] rounded-sm text-xs">
-                    <div className="flex items-center gap-2">
-                      <UserIcon className="w-3.5 h-3.5 text-[#c5a059]" />
-                      <div>
-                        <p className="font-mono text-[#f8fafc] font-medium">srinivasvarmadandu@gmail.com</p>
-                        <p className="text-[10px] text-[#8c9bb0]">Primary Superadmin</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Active
-                    </span>
-                  </div>
+              <div className="pt-2 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h4 className="text-xs uppercase tracking-wider text-[#9aa7b8] font-semibold flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5 text-[#c5a059]" />
+                    <span>Current Authorized Administrators ({getAuthorizedAdmins().length})</span>
+                  </h4>
+                </div>
 
-                  <div className="flex items-center justify-between p-3 bg-[#161d2b] border border-[#263346] rounded-sm text-xs">
-                    <div className="flex items-center gap-2">
-                      <UserIcon className="w-3.5 h-3.5 text-[#c5a059]" />
-                      <div>
-                        <p className="font-mono text-[#f8fafc] font-medium">projects@yardsinfra.com</p>
-                        <p className="text-[10px] text-[#8c9bb0]">Executive Admin</p>
+                {/* Quick Add Existing Email to Authorized List */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="email"
+                    value={quickAuthEmail}
+                    onChange={(e) => setQuickAuthEmail(e.target.value)}
+                    placeholder="Enter email to authorize (e.g. colleague@example.com)"
+                    className="flex-1 px-3 py-1.5 bg-[#171e2c] border border-[#2a374b] focus:border-[#c5a059] rounded-sm text-xs text-[#f8fafc] focus:outline-none font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const clean = quickAuthEmail.trim().toLowerCase();
+                      if (!clean) {
+                        showToast('Please enter an email address.');
+                        return;
+                      }
+                      const current = getAuthorizedAdmins();
+                      if (current.includes(clean)) {
+                        showToast(`${clean} is already an authorized administrator.`);
+                        return;
+                      }
+                      const updated = [...(companyInfo.authorizedAdmins || ['srinivasvarmadandu@gmail.com', 'projects@yardsinfra.com']), clean];
+                      updateCompanyInfo({ authorizedAdmins: updated });
+                      setQuickAuthEmail('');
+                      showToast(`Authorized ${clean} as company administrator!`);
+                    }}
+                    className="px-3 py-1.5 bg-[#222c3c] hover:bg-[#c5a059] hover:text-[#0e1117] text-[#c5a059] text-xs font-semibold rounded-sm transition-colors cursor-pointer border border-[#c5a059]/40"
+                  >
+                    + Authorize Email
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {getAuthorizedAdmins().map((adminEmail) => {
+                    const isSuperadmin = adminEmail === 'srinivasvarmadandu@gmail.com';
+                    return (
+                      <div key={adminEmail} className="flex items-center justify-between p-3 bg-[#161d2b] border border-[#263346] rounded-sm text-xs">
+                        <div className="flex items-center gap-2 min-w-0 pr-2">
+                          <UserIcon className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                          <div className="truncate">
+                            <p className="font-mono text-[#f8fafc] font-medium truncate">{adminEmail}</p>
+                            <p className="text-[10px] text-[#8c9bb0]">
+                              {isSuperadmin ? 'Primary Superadmin' : 'Authorized Administrator'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Active
+                          </span>
+                          {!isSuperadmin && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = getAuthorizedAdmins();
+                                const updated = current.filter(e => e !== adminEmail);
+                                updateCompanyInfo({ authorizedAdmins: updated });
+                                showToast(`Removed ${adminEmail} from authorized administrators.`);
+                              }}
+                              className="text-[10px] px-1.5 py-0.5 rounded-sm bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 font-medium transition-colors cursor-pointer ml-1"
+                              title="Revoke admin access"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Registered
-                    </span>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

@@ -38,7 +38,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     { name: 'Photo Gallery', view: 'gallery' },
     { name: 'Why Choose Us', view: 'why-us' },
     { name: 'Contact', view: 'contact' },
-    { name: 'Admin Portal', view: 'admin' },
   ];
 
   const footerServices: { name: string; view: NavView }[] = [
@@ -197,7 +196,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Bar: Copyright & Compliance */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-300">
           <div className="flex items-center gap-2 text-center sm:text-left font-medium">
-            <Shield className="w-3.5 h-3.5 text-[#E31B23]" />
+            <button
+              type="button"
+              onClick={() => onNavigate('admin')}
+              className="text-[#E31B23] hover:text-white transition-colors cursor-pointer p-0.5 rounded opacity-75 hover:opacity-100"
+              title="Security & Management"
+              aria-label="Security & Management"
+            >
+              <Shield className="w-3.5 h-3.5" />
+            </button>
             <span>© 2026 Yards Infra and Builders LLP. All Rights Reserved.</span>
           </div>
 

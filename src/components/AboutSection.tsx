@@ -17,7 +17,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenAboutModal }) 
           <div className="lg:col-span-6 relative">
             <div className="relative rounded overflow-hidden border border-gray-200 shadow-lg group bg-gray-900">
               <img
-                src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop"
+                src={companyInfo.aboutImage || "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop"}
                 alt="Yards Infra engineers inspecting industrial construction PEB framework on site"
                 className="w-full h-[400px] sm:h-[480px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
