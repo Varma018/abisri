@@ -1,7 +1,6 @@
 import React from 'react';
 import { X, Award, Shield, CheckCircle2, Building, Users, ArrowRight } from 'lucide-react';
 import { useCompanyInfo } from '../context/CompanyContext';
-import { YIBLogo } from './YIBLogo';
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -56,10 +55,9 @@ export const AboutModal: React.FC<AboutModalProps> = ({
 
         {/* Content */}
         <div className="max-h-[80vh] overflow-y-auto p-6 sm:p-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
-            <YIBLogo size="md" layout="stacked" variant="dark" />
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <span className="text-xs uppercase tracking-widest text-[#E31B23] font-bold">
-              Company Profile
+              Company Profile &amp; Overview
             </span>
           </div>
 

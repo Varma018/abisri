@@ -341,10 +341,10 @@ export const AdminPhotosTab: React.FC<AdminPhotosTabProps> = ({
                 helperText="Upload industrial shed or PEB erection site with safety gear"
                 allowCamera={true}
                 presetImages={[
-                  { label: 'Heavy Steel Erection', url: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop' },
-                  { label: 'PEB Framework Site', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop' },
-                  { label: 'High-Bay Logistics Hub', url: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1600&auto=format&fit=crop' },
-                  { label: 'Crane Rigging Work', url: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1600&auto=format&fit=crop' }
+                  { label: 'AP PEB Structure (Verified Site)', url: '/projects/peb-structure-ap.jpg' },
+                  { label: 'Hyderabad Industrial Shed', url: '/projects/industrial-shed-hyderabad.jpg' },
+                  { label: 'Logistics Warehouse Framing', url: '/projects/logistics-warehouse-telangana.jpg' },
+                  { label: 'Heavy Crane Steel Erection', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1600&auto=format&fit=crop' }
                 ]}
               />
             </div>
@@ -360,9 +360,9 @@ export const AdminPhotosTab: React.FC<AdminPhotosTabProps> = ({
 
               <div className="relative rounded-lg overflow-hidden border border-gray-700 bg-gray-950">
                 <img
-                  src={formData.whyChooseImage || 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop'}
+                  src={formData.whyChooseImage || '/projects/peb-structure-ap.jpg'}
                   alt="Why Yards Infra Preview"
-                  className="w-full h-48 sm:h-56 object-cover object-center filter brightness-90"
+                  className="w-full h-48 sm:h-56 object-cover object-center filter brightness-95"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent pointer-events-none" />
 

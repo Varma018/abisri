@@ -30,7 +30,7 @@ export const COMPANY_INFO: CompanyInfo = {
   heroCardImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1200&auto=format&fit=crop',
   heroBgImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=2400&auto=format&fit=crop',
   aboutImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop',
-  whyChooseImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop',
+  whyChooseImage: '/projects/peb-structure-ap.jpg',
   authorizedAdmins: [
     'srinivasvarmadandu@gmail.com',
     'projects@yardsinfra.com',
@@ -49,9 +49,9 @@ export const STATS_DATA: StatItem[] = [
     description: 'Delivered large-span industrial sheds, logistics godowns, PEB warehouses, and heavy structural frameworks.',
   },
   {
-    value: '2.5M+',
+    value: '3.5M+',
     label: 'Sq. Ft. of Structures Executed',
-    description: 'Over 2.5 million square feet of robust pre-engineered buildings and industrial roofing built to IS 800:2007 standards.',
+    description: 'Over 3.5 million square feet of robust pre-engineered buildings and industrial roofing built to IS 800:2007 standards.',
   },
   {
     value: '100%',

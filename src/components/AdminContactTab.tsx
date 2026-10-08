@@ -679,15 +679,17 @@ export const AdminContactTab: React.FC<AdminContactTabProps> = ({
 
             <ImageUploadField
               label="Why Yards Infra Feature Photo"
-              value={formData.whyChooseImage || 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop'}
+              value={formData.whyChooseImage || '/projects/peb-structure-ap.jpg'}
               onChange={(val) => handleChange('whyChooseImage', val)}
               aspectRatioLabel="Landscape 16:9"
               placeholder="Upload from mobile or paste photo URL..."
               allowCamera={true}
               helperText="Upload photo directly from mobile phone camera or gallery"
               presetImages={[
-                { label: 'Heavy Steel Erection', url: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f8?q=80&w=1600&auto=format&fit=crop' },
-                { label: 'PEB Framework Site', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600&auto=format&fit=crop' }
+                { label: 'AP PEB Structure (Verified Site)', url: '/projects/peb-structure-ap.jpg' },
+                { label: 'Hyderabad Industrial Shed', url: '/projects/industrial-shed-hyderabad.jpg' },
+                { label: 'Logistics Warehouse Framing', url: '/projects/logistics-warehouse-telangana.jpg' },
+                { label: 'Heavy Crane Steel Erection', url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=85&w=1600&auto=format&fit=crop' }
               ]}
             />
           </div>

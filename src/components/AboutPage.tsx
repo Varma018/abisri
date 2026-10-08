@@ -11,7 +11,6 @@ import {
   Check
 } from 'lucide-react';
 import { TeamMember } from '../types';
-import { YIBLogo } from './YIBLogo';
 import { useCompanyInfo } from '../context/CompanyContext';
 
 const SHOWCASE_TABS = [
@@ -66,25 +65,18 @@ export const AboutPage: React.FC<AboutPageProps> = ({
       {/* 1. About Hero Header Banner */}
       <section className="relative py-14 sm:py-20 bg-gray-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-8 max-w-3xl">
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E31B23] mb-3">
-                <span className="w-5 h-[2px] bg-[#E31B23]" />
-                <span>Corporate Profile &amp; Philosophy</span>
-              </div>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-950 leading-[1.15] mb-4 font-display">
-                Built on Values. <br />
-                <span className="text-[#E31B23]">Driven by Purpose.</span>
-              </h1>
-              <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-                Yards Infra and Builders LLP is a construction and infrastructure company focused on industrial sheds, godowns, and infrastructure projects. We combine engineering expertise with a practical approach to deliver strong, durable and cost-effective solutions for businesses.
-              </p>
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#E31B23] mb-3">
+              <span className="w-5 h-[2px] bg-[#E31B23]" />
+              <span>Corporate Profile &amp; Philosophy</span>
             </div>
-            <div className="lg:col-span-4 flex justify-center lg:justify-end mt-6 lg:mt-0">
-              <div className="p-6 sm:p-8 bg-white border border-gray-200 rounded shadow-sm max-w-xs w-full flex justify-center">
-                <YIBLogo size="lg" layout="vertical" variant="dark" showTagline={true} />
-              </div>
-            </div>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-950 leading-[1.15] mb-4 font-display">
+              Built on Values. <br />
+              <span className="text-[#E31B23]">Driven by Purpose.</span>
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-3xl">
+              Yards Infra and Builders LLP is a construction and infrastructure company focused on industrial sheds, godowns, and infrastructure projects. We combine engineering expertise with a practical approach to deliver strong, durable and cost-effective solutions for businesses.
+            </p>
           </div>
         </div>
       </section>

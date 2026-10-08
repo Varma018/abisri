@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Warehouse, Package, Cog, Building2, ArrowRight, PhoneCall, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ChevronDown, Warehouse, Package, Cog, Building2, ArrowRight, PhoneCall, ShieldCheck } from 'lucide-react';
 import { CORE_FOUR_AREAS } from '../data/companyData';
 import { useCompanyInfo } from '../context/CompanyContext';
 
@@ -134,22 +134,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <PhoneCall className="w-4 h-4 text-[#E31B23]" />
                 <span>Call Us: {companyInfo.phone}</span>
               </a>
-            </div>
-
-            {/* Trust Highlights Strip */}
-            <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-gray-600 font-medium pt-3 border-t border-gray-200/90 mb-5">
-              <span className="inline-flex items-center gap-1.5 text-gray-800">
-                <CheckCircle2 className="w-4 h-4 text-[#E31B23] shrink-0" />
-                <span>ISO 9001:2015 Certified</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-gray-800">
-                <CheckCircle2 className="w-4 h-4 text-[#E31B23] shrink-0" />
-                <span>Turnkey Execution</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-gray-800">
-                <CheckCircle2 className="w-4 h-4 text-[#E31B23] shrink-0" />
-                <span>Strict Safety & On-Time Delivery</span>
-              </span>
             </div>
 
             {/* Inspiring Company Quote */}
